@@ -26,6 +26,8 @@ public class App {
             SpotifyApi authorizedApi = apiFactory.createInstance();
 
             // TODO: Do something with the API...
+
+            authorizedApi.playlist
         } catch (ParseException | SpotifyWebApiException | IOException e) {
             // TODO: Auto-generated catch block
             e.printStackTrace();
