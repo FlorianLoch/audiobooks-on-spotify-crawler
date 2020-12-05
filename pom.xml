@@ -15,15 +15,15 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <maven.compiler.target>1.7</maven.compiler.target>
+    <maven.compiler.source>15</maven.compiler.source>
+    <maven.compiler.target>15</maven.compiler.target>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>se.michaelthelin.spotify</groupId>
       <artifactId>spotify-web-api-java</artifactId>
-      <version>6.4.0</version>
+      <version>[6.4.0,7.0)</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
