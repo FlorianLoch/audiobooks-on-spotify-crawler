@@ -12,7 +12,7 @@ import org.apache.hc.core5.http.ParseException;
 public class AuthorizedSpotifyAPIFactory {
     private final String clientId;
     private final String clientSecret;
-    private String accessToken;
+    private String accessToken = "";
 
     public AuthorizedSpotifyAPIFactory(String clientId, String clientSecret) {
         this.clientId = clientId;
@@ -30,7 +30,9 @@ public class AuthorizedSpotifyAPIFactory {
             this.accessToken = clientCredentials.getAccessToken();
 
             // TODO: replace this with call to proper logger
-            System.out.println("Expires in: " + clientCredentials.getExpiresIn());
+            System.out.println("AccessToken acquired, expires in: " + clientCredentials.getExpiresIn() + " seconds.");
+
+            // TODO: Think about what happens when the accessToken is not valid anymore
         }
 
         spotifyApi.setAccessToken(this.accessToken);

@@ -7,6 +7,8 @@ import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 
 import org.apache.hc.core5.http.ParseException;
 
+import ch.fdlo.hoerbuchspion.crawler.PlaylistsFromProfilesFetcher;
+
 public class App {
     public static final String ENV_CLIENT_ID = "HOERBUCHSPION_SPOTIFY_CLIENTID";
     public static final String ENV_CLIENT_SECRET = "HOERBUCHSPION_SPOTIFY_CLIENTSECRET";
@@ -15,7 +17,7 @@ public class App {
         final String clientId = System.getenv(ENV_CLIENT_ID);
         final String clientSecret = System.getenv(ENV_CLIENT_SECRET);
 
-        if (clientId.isEmpty() || clientSecret.isEmpty()) {
+        if (clientId == null || clientId.isEmpty() || clientSecret == null || clientSecret.isEmpty()) {
             System.out.println("Credentials for Spotify API not found. Please make sure '" + ENV_CLIENT_ID + "' and '"
                     + ENV_CLIENT_SECRET + "' are set.");
         }
@@ -25,9 +27,10 @@ public class App {
         try {
             SpotifyApi authorizedApi = apiFactory.createInstance();
 
-            // TODO: Do something with the API...
-
-            authorizedApi.playlist
+            var fetcher = new PlaylistsFromProfilesFetcher(authorizedApi, "digsterdeutschland");
+            for (String playlist : fetcher.fetch()) {
+                System.out.println(playlist);
+            }
         } catch (ParseException | SpotifyWebApiException | IOException e) {
             // TODO: Auto-generated catch block
             e.printStackTrace();
