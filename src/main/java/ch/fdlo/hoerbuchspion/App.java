@@ -29,14 +29,17 @@ public class App {
         try {
             SpotifyApi authorizedApi = apiFactory.createInstance();
 
-            // var fetcher = new PlaylistsFromProfilesFetcher(authorizedApi, "digsterdeutschland");
-            // for (String playlist : fetcher.fetch()) {
-            //     System.out.println(playlist);
-            // }
-            var fetcher = new ArtistsFromPlaylistsFetcher(authorizedApi, "0kdso1W3E726FkzZ2fCY8K");
-            for (String trackArtists : fetcher.fetch()) {
+            var playlistsFromProfilesFetcher = new PlaylistsFromProfilesFetcher(authorizedApi, "digsterdeutschland");
+            for (String playlist : playlistsFromProfilesFetcher.fetch()) {
+                System.out.println(playlist);
+            }
+
+            var artistsFromPlaylistsFetcher = new ArtistsFromPlaylistsFetcher(authorizedApi, "0kdso1W3E726FkzZ2fCY8K");
+            for (String trackArtists : artistsFromPlaylistsFetcher.fetch()) {
                  System.out.println(trackArtists);
             }
+
+            System.out.println("Total count of requests performed: " + CountingSpotifyHttpManager.getCount());
         } catch (ParseException | SpotifyWebApiException | IOException e) {
             // TODO: Auto-generated catch block
             e.printStackTrace();

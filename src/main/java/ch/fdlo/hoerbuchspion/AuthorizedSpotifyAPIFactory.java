@@ -3,6 +3,7 @@ package ch.fdlo.hoerbuchspion;
 import java.io.IOException;
 
 import com.wrapper.spotify.SpotifyApi;
+import com.wrapper.spotify.SpotifyHttpManager;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
@@ -20,7 +21,11 @@ public class AuthorizedSpotifyAPIFactory {
     }
 
     public synchronized SpotifyApi createInstance() throws ParseException, SpotifyWebApiException, IOException {
-        final SpotifyApi spotifyApi = new SpotifyApi.Builder().setClientId(this.clientId)
+        // TODO: It looks like not having an extra httpClient per API object is not threadsafe. Elaborate on this.
+        final var httpManager = new SpotifyHttpManager.Builder().build();
+        final var countingHttpManager = new CountingSpotifyHttpManager(httpManager);
+
+        final SpotifyApi spotifyApi = new SpotifyApi.Builder().setHttpManager(countingHttpManager).setClientId(this.clientId)
                 .setClientSecret(this.clientSecret).build();
 
         if (this.accessToken.isEmpty()) {

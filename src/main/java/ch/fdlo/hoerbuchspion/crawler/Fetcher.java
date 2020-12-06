@@ -84,8 +84,6 @@ public abstract class Fetcher<T> {
     private void requestNextPage() {
       var req = this.builder.offset(this.curOffset + LIMIT).build();
 
-      System.out.println("Going to request: " + req.getUri());
-
       try {
         var page = req.execute();
 
