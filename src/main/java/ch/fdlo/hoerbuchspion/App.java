@@ -7,6 +7,7 @@ import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 
 import org.apache.hc.core5.http.ParseException;
 
+import ch.fdlo.hoerbuchspion.crawler.AlbumsFromArtistsFetcher;
 import ch.fdlo.hoerbuchspion.crawler.ArtistsFromPlaylistsFetcher;
 import ch.fdlo.hoerbuchspion.crawler.PlaylistsFromProfilesFetcher;
 
@@ -29,14 +30,19 @@ public class App {
         try {
             SpotifyApi authorizedApi = apiFactory.createInstance();
 
-            var playlistsFromProfilesFetcher = new PlaylistsFromProfilesFetcher(authorizedApi, "digsterdeutschland");
-            for (String playlist : playlistsFromProfilesFetcher.fetch()) {
-                System.out.println(playlist);
-            }
+            // var playlistsFromProfilesFetcher = new PlaylistsFromProfilesFetcher(authorizedApi, "digsterdeutschland");
+            // for (String playlist : playlistsFromProfilesFetcher.fetch()) {
+            //     System.out.println(playlist);
+            // }
 
-            var artistsFromPlaylistsFetcher = new ArtistsFromPlaylistsFetcher(authorizedApi, "0kdso1W3E726FkzZ2fCY8K");
-            for (String trackArtists : artistsFromPlaylistsFetcher.fetch()) {
-                 System.out.println(trackArtists);
+            // var artistsFromPlaylistsFetcher = new ArtistsFromPlaylistsFetcher(authorizedApi, "0kdso1W3E726FkzZ2fCY8K");
+            // for (String trackArtists : artistsFromPlaylistsFetcher.fetch()) {
+            //      System.out.println(trackArtists);
+            // }
+
+            var albumsFromArtistsFetcher = new AlbumsFromArtistsFetcher(authorizedApi, "0I5CMdNszqP3qJTmhGxlsA");
+            for (String albumName : albumsFromArtistsFetcher.fetch()) {
+                 System.out.println(albumName);
             }
 
             System.out.println("Total count of requests performed: " + CountingSpotifyHttpManager.getCount());
