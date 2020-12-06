@@ -7,6 +7,7 @@ import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 
 import org.apache.hc.core5.http.ParseException;
 
+import ch.fdlo.hoerbuchspion.crawler.ArtistsFromPlaylistsFetcher;
 import ch.fdlo.hoerbuchspion.crawler.PlaylistsFromProfilesFetcher;
 
 public class App {
@@ -20,6 +21,7 @@ public class App {
         if (clientId == null || clientId.isEmpty() || clientSecret == null || clientSecret.isEmpty()) {
             System.out.println("Credentials for Spotify API not found. Please make sure '" + ENV_CLIENT_ID + "' and '"
                     + ENV_CLIENT_SECRET + "' are set.");
+            System.exit(1);
         }
 
         AuthorizedSpotifyAPIFactory apiFactory = new AuthorizedSpotifyAPIFactory(clientId, clientSecret);
@@ -27,9 +29,13 @@ public class App {
         try {
             SpotifyApi authorizedApi = apiFactory.createInstance();
 
-            var fetcher = new PlaylistsFromProfilesFetcher(authorizedApi, "digsterdeutschland");
-            for (String playlist : fetcher.fetch()) {
-                System.out.println(playlist);
+            // var fetcher = new PlaylistsFromProfilesFetcher(authorizedApi, "digsterdeutschland");
+            // for (String playlist : fetcher.fetch()) {
+            //     System.out.println(playlist);
+            // }
+            var fetcher = new ArtistsFromPlaylistsFetcher(authorizedApi, "0kdso1W3E726FkzZ2fCY8K");
+            for (String trackArtists : fetcher.fetch()) {
+                 System.out.println(trackArtists);
             }
         } catch (ParseException | SpotifyWebApiException | IOException e) {
             // TODO: Auto-generated catch block
