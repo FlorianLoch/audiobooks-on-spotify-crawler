@@ -8,7 +8,7 @@ import java.util.function.Function;
     final Iterator<T> innerIterator;
     final Function<T, R> mapFn;
 
-    MappingIterator(Iterator<T> innerIterator, Function<T, R> mapFn ) {
+    public MappingIterator(Iterator<T> innerIterator, Function<T, R> mapFn ) {
       this.innerIterator = innerIterator;
       this.mapFn = mapFn;
     }

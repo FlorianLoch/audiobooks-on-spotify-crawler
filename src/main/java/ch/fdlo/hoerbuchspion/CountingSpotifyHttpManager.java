@@ -5,7 +5,6 @@ import java.net.URI;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.wrapper.spotify.IHttpManager;
-import com.wrapper.spotify.SpotifyHttpManager;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 
 import org.apache.hc.core5.http.Header;
