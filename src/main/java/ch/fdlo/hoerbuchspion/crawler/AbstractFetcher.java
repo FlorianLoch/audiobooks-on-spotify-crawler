@@ -14,10 +14,10 @@ import org.apache.hc.core5.http.ParseException;
 
 import ch.fdlo.hoerbuchspion.crawler.util.*;
 
-public abstract class Fetcher<T> {
+public abstract class AbstractFetcher<T> {
   protected final SpotifyApi spotifyApi;
 
-  public Fetcher(SpotifyApi authorizedApi) {
+  public AbstractFetcher(SpotifyApi authorizedApi) {
     this.spotifyApi = authorizedApi;
   }
 

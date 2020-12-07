@@ -8,7 +8,9 @@ import com.wrapper.spotify.model_objects.specification.PlaylistSimplified;
 
 import org.apache.hc.core5.http.ParseException;
 
-public class PlaylistsFromProfilesFetcher extends Fetcher<String> {
+import ch.fdlo.hoerbuchspion.crawler.types.Playlist;
+
+public class PlaylistsFromProfilesFetcher extends AbstractFetcher<Playlist> {
   private final String profileId;
 
   public PlaylistsFromProfilesFetcher(SpotifyApi authorizedApi, String profileId) {
@@ -18,11 +20,11 @@ public class PlaylistsFromProfilesFetcher extends Fetcher<String> {
   }
 
   @Override
-  public Iterable<String> fetch() throws ParseException, SpotifyWebApiException, IOException {
+  public Iterable<Playlist> fetch() throws ParseException, SpotifyWebApiException, IOException {
     var builder = this.spotifyApi.getListOfUsersPlaylists(this.profileId);
 
     return this.executeRequest(builder, (PlaylistSimplified playlist) -> {
-      return playlist.getId();
+      return new Playlist(playlist);
     });
   }
 
