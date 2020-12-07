@@ -64,6 +64,20 @@ public class Album {
   }
 
   @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof Album) {
+      return this.id.equals(((Album) obj).id);
+    }
+
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return this.id.hashCode();
+  }
+
+  @Override
   public String toString() {
     return "ALBUM: " + this.name + " (" + this.id + "), " + this.releaseDate + ", " + this.storyType;
   }

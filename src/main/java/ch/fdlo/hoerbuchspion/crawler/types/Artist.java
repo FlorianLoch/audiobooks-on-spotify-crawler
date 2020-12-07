@@ -24,6 +24,20 @@ public class Artist {
   }
 
   @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof Artist) {
+      return this.id.equals(((Artist) obj).id);
+    }
+
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return this.id.hashCode();
+  }
+
+  @Override
   public String toString() {
     return "ARTIST: " + this.name + " (" + this.id + ")";
   }
