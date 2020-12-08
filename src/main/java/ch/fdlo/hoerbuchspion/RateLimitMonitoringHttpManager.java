@@ -2,8 +2,6 @@ package ch.fdlo.hoerbuchspion;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.wrapper.spotify.IHttpManager;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;

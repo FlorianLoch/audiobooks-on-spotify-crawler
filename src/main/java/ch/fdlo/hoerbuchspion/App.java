@@ -7,6 +7,7 @@ import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import org.apache.hc.core5.http.ParseException;
 
 import ch.fdlo.hoerbuchspion.crawler.Crawler;
+import ch.fdlo.hoerbuchspion.crawler.db.AlbumDAO;
 
 public class App {
     public static final String ENV_CLIENT_ID = "HOERBUCHSPION_SPOTIFY_CLIENTID";
@@ -27,11 +28,13 @@ public class App {
         try {
             var crawler = new Crawler(apiFactory);
 
-            crawler.addCategory("audiobooks");
+            //crawler.addCategory("audiobooks");
             crawler.addProfile("argonhörbücher");
             //crawler.addArtist("2YlvvdXUqRjiXmeL2GRuZ9", "Sherlock Holmes");
 
-            crawler.crawlAlbums();
+            var albums = crawler.crawlAlbums();
+
+            new AlbumDAO().persist(albums);
 
             System.out.println("Total amount of requests performed: " + CountingSpotifyHttpManager.getCount());
         } catch (ParseException | SpotifyWebApiException | IOException e) {
