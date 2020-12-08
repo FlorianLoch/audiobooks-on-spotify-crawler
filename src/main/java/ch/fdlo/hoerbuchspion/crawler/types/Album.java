@@ -3,9 +3,16 @@ package ch.fdlo.hoerbuchspion.crawler.types;
 import com.wrapper.spotify.enums.AlbumGroup;
 import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
+@Entity
 public class Album {
+  @Id
   private String id;
   private String name;
+  @ManyToOne
   private Artist artist;
   private String releaseDate;
   private String albumArtUrl;

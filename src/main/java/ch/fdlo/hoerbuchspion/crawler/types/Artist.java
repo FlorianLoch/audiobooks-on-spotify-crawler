@@ -1,8 +1,13 @@
 package ch.fdlo.hoerbuchspion.crawler.types;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 import com.wrapper.spotify.model_objects.specification.ArtistSimplified;
 
+@Entity
 public class Artist {
+  @Id
   private String id;
   private String name;
 
