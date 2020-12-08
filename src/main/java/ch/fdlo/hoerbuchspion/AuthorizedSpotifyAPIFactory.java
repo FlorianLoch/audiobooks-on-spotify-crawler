@@ -24,8 +24,9 @@ public class AuthorizedSpotifyAPIFactory {
         // TODO: It looks like not having an extra httpClient per API object is not threadsafe. Elaborate on this.
         final var httpManager = new SpotifyHttpManager.Builder().build();
         final var countingHttpManager = new CountingSpotifyHttpManager(httpManager);
+        final var rateLimitMonitoringHttpManager = new RateLimitMonitoringHttpManager(countingHttpManager);
 
-        final SpotifyApi spotifyApi = new SpotifyApi.Builder().setHttpManager(countingHttpManager).setClientId(this.clientId)
+        final SpotifyApi spotifyApi = new SpotifyApi.Builder().setHttpManager(rateLimitMonitoringHttpManager).setClientId(this.clientId)
                 .setClientSecret(this.clientSecret).build();
 
         if (this.accessToken.isEmpty()) {
