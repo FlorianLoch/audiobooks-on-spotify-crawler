@@ -13,31 +13,18 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 
-public class RateLimitMonitoringHttpManager implements IHttpManager {
+public class RateLimitMonitoringHttpManager extends AbstractDecoratingHttpManager {
   public static int DEFAULT_RETRY_AFTER = 2; // given in seconds
 
-  private Map<HttpVerb, VerbHandler> handlerFns = new HashMap<>();
-
-  private IHttpManager wrappedManager;
-
   public RateLimitMonitoringHttpManager(IHttpManager httpManager) {
-    this.wrappedManager = httpManager;
-
-    // We need to do this after the the wrappedManager has been set - otherwise the shortcut syntax below
-    // causes NPEs
-    this.handlerFns.put(HttpVerb.GET, (URI uri, Header[] headers, HttpEntity body) -> {
-      return this.wrappedManager.get(uri, headers);
-    });
-    this.handlerFns.put(HttpVerb.POST, this.wrappedManager::post);
-    this.handlerFns.put(HttpVerb.PUT, this.wrappedManager::put);
-    this.handlerFns.put(HttpVerb.DELETE, this.wrappedManager::delete);
+    super(httpManager);
   }
 
-  private String handle(HttpVerb verb, URI uri, Header[] headers, HttpEntity body) throws IOException, SpotifyWebApiException, ParseException {
-    VerbHandler handlerFn = this.handlerFns.get(verb);
-
+  @Override
+  String handleImpl(VerbHandler wrappedVerbHandler, HttpVerb verb,
+      URI uri, Header[] headers, HttpEntity body) throws IOException, SpotifyWebApiException, ParseException {
     try {
-      return handlerFn.fn(uri, headers, body);
+      return wrappedVerbHandler.apply(uri, headers, body);
     } catch (TooManyRequestsException e) {
       StringBuilder sb = new StringBuilder("Triggered the API rate limit: ");
 
@@ -46,7 +33,7 @@ public class RateLimitMonitoringHttpManager implements IHttpManager {
         sb.append("Going to wait for ").append(e.getRetryAfter()).append(" seconds.");
       } else {
         retryAfter = DEFAULT_RETRY_AFTER;
-        sb.append("No retry after given... Going to wait ").append(DEFAULT_RETRY_AFTER).append(" seconds.");
+        sb.append("No 'retry after' value given... Going to wait ").append(DEFAULT_RETRY_AFTER).append(" seconds.");
       }
 
       System.out.println(sb);
@@ -58,38 +45,8 @@ public class RateLimitMonitoringHttpManager implements IHttpManager {
         e1.printStackTrace();
       }
 
-      return handlerFn.fn(uri, headers, body);
+      return wrappedVerbHandler.apply(uri, headers, body);
     }
   }
 
-  @Override
-  public String get(URI uri, Header[] headers) throws IOException, SpotifyWebApiException, ParseException {
-    return this.handle(HttpVerb.GET, uri, headers, null);
-  }
-
-  @Override
-  public String post(URI uri, Header[] headers, HttpEntity body)
-      throws IOException, SpotifyWebApiException, ParseException {
-      return this.handle(HttpVerb.POST, uri, headers, body);
-  }
-
-  @Override
-  public String put(URI uri, Header[] headers, HttpEntity body)
-      throws IOException, SpotifyWebApiException, ParseException {
-      return this.handle(HttpVerb.PUT, uri, headers, body);
-  }
-
-  @Override
-  public String delete(URI uri, Header[] headers, HttpEntity body)
-      throws IOException, SpotifyWebApiException, ParseException {
-      return this.handle(HttpVerb.DELETE, uri, headers, body);
-  }
-
-  enum HttpVerb {
-    GET, POST, PUT, DELETE;
-  }
-
-  interface VerbHandler {
-    String fn(URI uri, Header[] headers, HttpEntity body) throws IOException, SpotifyWebApiException, ParseException;
-  }
 }

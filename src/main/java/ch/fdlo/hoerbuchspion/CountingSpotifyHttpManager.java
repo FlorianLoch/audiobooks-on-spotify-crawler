@@ -11,54 +11,24 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 
-class CountingSpotifyHttpManager implements IHttpManager {
+class CountingSpotifyHttpManager extends AbstractDecoratingHttpManager {
     private static AtomicInteger requestCounter = new AtomicInteger();
-    private IHttpManager wrappedManager;
 
     public CountingSpotifyHttpManager(IHttpManager httpManager) {
-        this.wrappedManager = httpManager;
+        super(httpManager);
     }
 
     @Override
-    public String get(URI uri, Header[] headers) throws IOException, SpotifyWebApiException, ParseException {
-        requestCounter.incrementAndGet();
-
-        System.out.println("Going to GET: " + uri);
-
-        return this.wrappedManager.get(uri, headers);
-    }
-
-    @Override
-    public String post(URI uri, Header[] headers, HttpEntity body)
+    String handleImpl(VerbHandler wrappedVerbHandler, HttpVerb verb, URI uri, Header[] headers, HttpEntity body)
             throws IOException, SpotifyWebApiException, ParseException {
         requestCounter.incrementAndGet();
 
-        System.out.println("Going to POST: " + uri);
+        System.out.println("Going to " + verb + ": " + uri);
 
-        return this.wrappedManager.post(uri, headers, body);
-    }
-
-    @Override
-    public String put(URI uri, Header[] headers, HttpEntity body)
-            throws IOException, SpotifyWebApiException, ParseException {
-        requestCounter.incrementAndGet();
-
-        System.out.println("Going to PUT: " + uri);
-
-        return this.wrappedManager.put(uri, headers, body);
-    }
-
-    @Override
-    public String delete(URI uri, Header[] headers, HttpEntity body)
-            throws IOException, SpotifyWebApiException, ParseException {
-        requestCounter.incrementAndGet();
-
-        System.out.println("Going to DELETE: " + uri);
-
-        return this.wrappedManager.delete(uri, headers, body);
+        return wrappedVerbHandler.apply(uri, headers, body);
     }
 
     public static int getCount() {
-      return requestCounter.get();
+        return requestCounter.get();
     }
 }
