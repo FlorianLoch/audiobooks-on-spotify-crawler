@@ -28,9 +28,10 @@ public class App {
             var crawler = new Crawler(apiFactory);
 
             crawler.addCategory("audiobooks");
-            crawler.addArtist("2YlvvdXUqRjiXmeL2GRuZ9", "Sherlock Holmes");
+            crawler.addProfile("argonhörbücher");
+            //crawler.addArtist("2YlvvdXUqRjiXmeL2GRuZ9", "Sherlock Holmes");
 
-            crawler.crawl();
+            crawler.crawlAlbums();
 
             System.out.println("Total amount of requests performed: " + CountingSpotifyHttpManager.getCount());
         } catch (ParseException | SpotifyWebApiException | IOException e) {

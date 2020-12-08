@@ -1,6 +1,7 @@
 package ch.fdlo.hoerbuchspion.crawler;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,7 +44,7 @@ public class Crawler {
     this.artists.add(new Artist(artistId, artistName));
   }
 
-  public void crawl() throws ParseException, SpotifyWebApiException, IOException {
+  public Set<Album> crawlAlbums() throws ParseException, SpotifyWebApiException, IOException {
     this.collectPlaylists();
     System.out.println("Found " + this.playlists.size() + " playlists.");
 
@@ -53,9 +54,7 @@ public class Crawler {
     this.collectAlbums();
     System.out.println("Found " + this.albums.size() + " albums.");
 
-    for (Album album : this.albums) {
-      System.out.println(album);
-    }
+    return Collections.unmodifiableSet(this.albums);
   }
 
   private void collectPlaylists() throws ParseException, SpotifyWebApiException, IOException {
@@ -66,7 +65,7 @@ public class Crawler {
       }
     }
 
-    for (String profile : this.categories) {
+    for (String profile : this.profiles) {
       var playlistsFromCategoryFetcher = new PlaylistsFromProfilesFetcher(this.api, profile);
       for (Playlist playlist : playlistsFromCategoryFetcher.fetch()) {
           this.playlists.add(playlist);
