@@ -41,7 +41,7 @@ public class Crawler {
   }
 
   public void addArtist(String artistId, String artistName) {
-    this.artists.add(new Artist(artistId, artistName));
+    this.artists.add(Artist.getArtist(artistId, artistName));
   }
 
   public Set<Album> crawlAlbums() throws ParseException, SpotifyWebApiException, IOException {

@@ -23,6 +23,8 @@ public class App {
             System.exit(1);
         }
 
+        AlbumDAO albumDAO = new AlbumDAO();
+
         AuthorizedSpotifyAPIFactory apiFactory = new AuthorizedSpotifyAPIFactory(clientId, clientSecret);
 
         try {
@@ -34,7 +36,7 @@ public class App {
 
             var albums = crawler.crawlAlbums();
 
-            new AlbumDAO().persist(albums);
+            albumDAO.persist(albums);
 
             System.out.println("Total amount of requests performed: " + CountingSpotifyHttpManager.getCount());
         } catch (ParseException | SpotifyWebApiException | IOException e) {

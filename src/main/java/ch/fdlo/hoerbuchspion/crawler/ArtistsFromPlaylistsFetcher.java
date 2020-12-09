@@ -31,10 +31,10 @@ public class ArtistsFromPlaylistsFetcher extends AbstractFetcher<Artist> {
       var artists = track.getArtists();
 
       if (artists.length == 0) {
-        return new Artist("UNKNOWN", "UNKNOWN");
+        return Artist.getArtist("UNKNOWN", "UNKNOWN");
       }
 
-      return new Artist(artists[0]);
+      return Artist.getArtist(artists[0]);
 
       // return Arrays.asList(artists).stream().skip(1).map((artist) -> {
       //   return artist.getName();

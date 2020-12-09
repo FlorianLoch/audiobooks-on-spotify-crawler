@@ -26,7 +26,7 @@ public class AlbumDAO {
     this.em.getTransaction().begin();
 
     for (Album album : albums) {
-      this.em.persist(album);
+      this.em.merge(album);
     }
 
     this.em.getTransaction().commit();
