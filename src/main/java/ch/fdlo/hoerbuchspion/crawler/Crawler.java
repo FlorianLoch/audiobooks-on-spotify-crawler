@@ -12,8 +12,10 @@ import org.apache.hc.core5.http.ParseException;
 
 import ch.fdlo.hoerbuchspion.AuthorizedSpotifyAPIFactory;
 import ch.fdlo.hoerbuchspion.crawler.types.Album;
+import ch.fdlo.hoerbuchspion.crawler.types.AlbumDetails;
 import ch.fdlo.hoerbuchspion.crawler.types.Artist;
 import ch.fdlo.hoerbuchspion.crawler.types.Playlist;
+import ch.fdlo.hoerbuchspion.crawler.types.Track;
 
 public class Crawler {
   private SpotifyApi api;
@@ -44,6 +46,12 @@ public class Crawler {
     this.artists.add(Artist.getArtist(artistId, artistName));
   }
 
+  // We need this one setter to be able to give the crawler a pruned album list,
+  // i.e., without the ones already in the db
+  public void setAlbums(Set<Album> albums) {
+    this.albums = albums;
+  }
+
   public Set<Album> crawlAlbums() throws ParseException, SpotifyWebApiException, IOException {
     this.collectPlaylists();
     System.out.println("Found " + this.playlists.size() + " playlists.");
@@ -57,36 +65,51 @@ public class Crawler {
     return Collections.unmodifiableSet(this.albums);
   }
 
+  public Set<Album> augmentAlbums() throws ParseException, SpotifyWebApiException, IOException {
+    for (Album album : this.albums) {
+      var albumDetails = new AlbumDetails();
+
+      var tracksFromAlbumFetcher = new TracksFromAlbumFetcher(this.api, album.getId());
+      for (Track track : tracksFromAlbumFetcher.fetch()) {
+        albumDetails.processTrack(track);
+      }
+
+      album.setAlbumDetails(albumDetails);
+    }
+
+    return Collections.unmodifiableSet(this.albums);
+  }
+
   private void collectPlaylists() throws ParseException, SpotifyWebApiException, IOException {
     for (String category : this.categories) {
       var playlistsFromCategoryFetcher = new PlaylistsFromCategoryFetcher(this.api, category);
       for (Playlist playlist : playlistsFromCategoryFetcher.fetch()) {
-          this.playlists.add(playlist);
+        this.playlists.add(playlist);
       }
     }
 
     for (String profile : this.profiles) {
-      var playlistsFromCategoryFetcher = new PlaylistsFromProfilesFetcher(this.api, profile);
+      var playlistsFromCategoryFetcher = new PlaylistsFromProfileFetcher(this.api, profile);
       for (Playlist playlist : playlistsFromCategoryFetcher.fetch()) {
-          this.playlists.add(playlist);
+        this.playlists.add(playlist);
       }
     }
   }
 
   private void collectArtists() throws ParseException, SpotifyWebApiException, IOException {
     for (Playlist playlist : this.playlists) {
-      var artistsFromPlaylistsFetcher = new ArtistsFromPlaylistsFetcher(this.api, playlist.getId());
+      var artistsFromPlaylistsFetcher = new ArtistsFromPlaylistFetcher(this.api, playlist.getId());
       for (Artist artist : artistsFromPlaylistsFetcher.fetch()) {
-          this.artists.add(artist);
+        this.artists.add(artist);
       }
     }
   }
 
   private void collectAlbums() throws ParseException, SpotifyWebApiException, IOException {
     for (Artist artist : this.artists) {
-      var albumsFromArtistsFetcher = new AlbumsFromArtistsFetcher(this.api, artist.getId());
+      var albumsFromArtistsFetcher = new AlbumsFromArtistFetcher(this.api, artist.getId());
       for (Album album : albumsFromArtistsFetcher.fetch()) {
-          this.albums.add(album);
+        this.albums.add(album);
       }
     }
   }
