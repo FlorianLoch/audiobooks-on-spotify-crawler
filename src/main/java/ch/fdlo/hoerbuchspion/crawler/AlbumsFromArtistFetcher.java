@@ -11,10 +11,10 @@ import org.apache.hc.core5.http.ParseException;
 
 import ch.fdlo.hoerbuchspion.crawler.types.Album;
 
-public class AlbumsFromArtistsFetcher extends AbstractFetcher<Album> {
+public class AlbumsFromArtistFetcher extends AbstractFetcher<Album> {
   private final String artistId;
 
-  public AlbumsFromArtistsFetcher(SpotifyApi authorizedApi, String artistId) {
+  public AlbumsFromArtistFetcher(SpotifyApi authorizedApi, String artistId) {
     super(authorizedApi);
 
     this.artistId = artistId;

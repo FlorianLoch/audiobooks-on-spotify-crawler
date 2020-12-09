@@ -10,10 +10,10 @@ import org.apache.hc.core5.http.ParseException;
 
 import ch.fdlo.hoerbuchspion.crawler.types.Playlist;
 
-public class PlaylistsFromProfilesFetcher extends AbstractFetcher<Playlist> {
+public class PlaylistsFromProfileFetcher extends AbstractFetcher<Playlist> {
   private final String profileId;
 
-  public PlaylistsFromProfilesFetcher(SpotifyApi authorizedApi, String profileId) {
+  public PlaylistsFromProfileFetcher(SpotifyApi authorizedApi, String profileId) {
     super(authorizedApi);
 
     this.profileId = profileId;
