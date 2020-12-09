@@ -4,6 +4,7 @@ import com.wrapper.spotify.enums.AlbumGroup;
 import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -21,6 +22,8 @@ public class Album {
   private String albumArtUrl;
   private AlbumType albumType;
   private StoryType storyType;
+  @Embedded // effectively a OneToOne relation
+  private AlbumDetails albumDetails;
 
   // Required by JPA
   private Album() {}
@@ -74,6 +77,14 @@ public class Album {
 
   public StoryType getStoryType() {
     return storyType;
+  }
+
+  public AlbumDetails getAlbumDetails() {
+    return albumDetails;
+  }
+
+  public void setAlbumDetails(AlbumDetails albumDetails) {
+    this.albumDetails = albumDetails;
   }
 
   @Override
