@@ -9,6 +9,10 @@ public class AlbumDetails {
   private boolean allTracksNotExplicit = true;
   private boolean allTracksPlayable = true;
   private String previewURL = "";
+  private int popularity;
+  private String label = "";
+  private String copyright = "";
+
 
   public void processTrack(Track track) {
     this.totalTracks++;
@@ -22,5 +26,17 @@ public class AlbumDetails {
     if (this.previewURL.isEmpty() && !track.getPreviewUrl().isEmpty()) {
       this.previewURL = track.getPreviewUrl();
     }
+  }
+
+  public void setPopularity(int popularity) {
+    this.popularity = popularity;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
+  public void setCopyright(String copyright) {
+    this.copyright = copyright;
   }
 }
