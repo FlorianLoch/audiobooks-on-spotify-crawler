@@ -3,6 +3,7 @@ package ch.fdlo.hoerbuchspion.crawler.types;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -17,6 +18,8 @@ public class Artist {
   @Id
   private String id;
   private String name;
+  @Embedded // effectively a OneToOne relation
+  private ArtistDetails artistDetails;
 
   // Required by JPA
   private Artist() {}
@@ -47,6 +50,10 @@ public class Artist {
 
   public String getName() {
     return name;
+  }
+
+  public void setArtistDetails(ArtistDetails artistDetails) {
+    this.artistDetails = artistDetails;
   }
 
   @Override

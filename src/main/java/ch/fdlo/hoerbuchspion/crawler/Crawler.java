@@ -1,25 +1,19 @@
 package ch.fdlo.hoerbuchspion.crawler;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
-import com.wrapper.spotify.model_objects.specification.Copyright;
 
 import org.apache.hc.core5.http.ParseException;
 
 import ch.fdlo.hoerbuchspion.AuthorizedSpotifyAPIFactory;
 import ch.fdlo.hoerbuchspion.crawler.types.Album;
-import ch.fdlo.hoerbuchspion.crawler.types.AlbumDetails;
 import ch.fdlo.hoerbuchspion.crawler.types.Artist;
 import ch.fdlo.hoerbuchspion.crawler.types.Playlist;
-import ch.fdlo.hoerbuchspion.crawler.types.Track;
 
 public class Crawler {
   private SpotifyApi api;
@@ -65,38 +59,6 @@ public class Crawler {
 
     this.collectAlbums();
     System.out.println("Found " + this.albums.size() + " albums.");
-
-    return Collections.unmodifiableSet(this.albums);
-  }
-
-  public Set<Album> augmentAlbums() throws ParseException, SpotifyWebApiException, IOException {
-    for (Album album : this.albums) {
-      var albumDetails = new AlbumDetails();
-
-      var spotifyAlbum = this.api.getAlbum(album.getId()).build().execute();
-
-      // TODO: looks horrible
-      var copyright = String.join(", ", new Iterable<String>() {
-        @Override
-        public Iterator<String> iterator() {
-          return Stream.of(spotifyAlbum.getCopyrights()).map((Copyright copyright) -> {
-            return copyright.getText();
-          }).iterator();
-        }
-      });
-      albumDetails.setCopyright(copyright);
-
-      albumDetails.setLabel(spotifyAlbum.getLabel());
-
-      albumDetails.setPopularity(spotifyAlbum.getPopularity());
-
-      var tracksFromAlbumFetcher = new TracksFromAlbumFetcher(this.api, album.getId());
-      for (Track track : tracksFromAlbumFetcher.fetch()) {
-        albumDetails.processTrack(track);
-      }
-
-      album.setAlbumDetails(albumDetails);
-    }
 
     return Collections.unmodifiableSet(this.albums);
   }

@@ -23,7 +23,7 @@ class CountingSpotifyHttpManager extends AbstractDecoratingHttpManager {
             throws IOException, SpotifyWebApiException, ParseException {
         requestCounter.incrementAndGet();
 
-        System.out.println("Going to " + verb + ": " + uri);
+        System.out.println(verb + ": " + uri);
 
         return wrappedVerbHandler.apply(uri, headers, body);
     }
