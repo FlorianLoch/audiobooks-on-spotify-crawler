@@ -9,6 +9,7 @@ import org.apache.hc.core5.http.ParseException;
 
 import ch.fdlo.hoerbuchspion.crawler.Augmenter;
 import ch.fdlo.hoerbuchspion.crawler.Crawler;
+import ch.fdlo.hoerbuchspion.crawler.LanguageDetector;
 import ch.fdlo.hoerbuchspion.crawler.db.AlbumDAO;
 import ch.fdlo.hoerbuchspion.crawler.types.Album;
 import ch.fdlo.hoerbuchspion.crawler.types.Artist;

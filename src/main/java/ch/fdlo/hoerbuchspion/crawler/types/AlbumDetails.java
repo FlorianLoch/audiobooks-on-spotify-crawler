@@ -1,6 +1,10 @@
 package ch.fdlo.hoerbuchspion.crawler.types;
 
 import javax.persistence.Embeddable;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+
+import ch.fdlo.hoerbuchspion.crawler.LanguageDetector.Language;
 
 @Embeddable
 public class AlbumDetails {
@@ -12,6 +16,8 @@ public class AlbumDetails {
   private int popularity;
   private String label = "";
   private String copyright = "";
+  @Enumerated(EnumType.STRING)
+  private Language assumedLanguage = Language.UNKNOWN;
 
 
   public void processTrack(Track track) {
@@ -38,5 +44,9 @@ public class AlbumDetails {
 
   public void setCopyright(String copyright) {
     this.copyright = copyright;
+  }
+
+  public void setAssumedLanguage(Language assumedLanguage) {
+    this.assumedLanguage = assumedLanguage;
   }
 }

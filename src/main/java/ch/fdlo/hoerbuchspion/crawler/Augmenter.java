@@ -46,6 +46,8 @@ public class Augmenter {
 
       albumDetails.setPopularity(spotifyAlbum.getPopularity());
 
+      albumDetails.setAssumedLanguage(LanguageDetector.detectLanguage(album.getName()));
+
       var tracksFromAlbumFetcher = new TracksFromAlbumFetcher(this.api, album.getId());
       for (Track track : tracksFromAlbumFetcher.fetch()) {
         albumDetails.processTrack(track);
