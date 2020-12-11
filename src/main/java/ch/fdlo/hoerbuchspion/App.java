@@ -22,6 +22,10 @@ public class App {
         final String clientId = System.getenv(ENV_CLIENT_ID);
         final String clientSecret = System.getenv(ENV_CLIENT_SECRET);
 
+        // LanguageDetector.detectUsingWordlists("Die Tore der Welt");
+
+        // System.exit(1);
+
         if (clientId == null || clientId.isEmpty() || clientSecret == null || clientSecret.isEmpty()) {
             System.out.println("Credentials for Spotify API not found. Please make sure '" + ENV_CLIENT_ID + "' and '"
                     + ENV_CLIENT_SECRET + "' are set.");
@@ -55,7 +59,7 @@ public class App {
             augmenter.augmentAlbums(prunedAlbums);
             augmenter.augmentArtists(prunedArtists);
 
-            albumDAO.persist(prunedAlbums);
+            albumDAO.upsert(prunedAlbums);
 
             System.out.println("Total amount of requests performed: " + CountingSpotifyHttpManager.getCount());
         } catch (ParseException | SpotifyWebApiException | IOException e) {
