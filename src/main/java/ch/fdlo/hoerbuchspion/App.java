@@ -9,8 +9,11 @@ import org.apache.hc.core5.http.ParseException;
 
 import ch.fdlo.hoerbuchspion.crawler.Augmenter;
 import ch.fdlo.hoerbuchspion.crawler.Crawler;
-import ch.fdlo.hoerbuchspion.crawler.LanguageDetector;
 import ch.fdlo.hoerbuchspion.crawler.db.AlbumDAO;
+import ch.fdlo.hoerbuchspion.crawler.languageDetector.CombiningLanguageDetector;
+import ch.fdlo.hoerbuchspion.crawler.languageDetector.LanguageDetector;
+import ch.fdlo.hoerbuchspion.crawler.languageDetector.OptimaizeLanguageDetector;
+import ch.fdlo.hoerbuchspion.crawler.languageDetector.WordlistLanguageDetector;
 import ch.fdlo.hoerbuchspion.crawler.types.Album;
 import ch.fdlo.hoerbuchspion.crawler.types.Artist;
 
@@ -33,8 +36,14 @@ public class App {
         AuthorizedSpotifyAPIFactory apiFactory = new AuthorizedSpotifyAPIFactory(clientId, clientSecret);
 
         try {
+            var optimaizeLanguageDetector = new OptimaizeLanguageDetector();
+            var wordlistLanguageDetector = new WordlistLanguageDetector();
+            wordlistLanguageDetector.tryToAddDebianWordlists();
+            var combinedLanguageDetector = new CombiningLanguageDetector(optimaizeLanguageDetector, wordlistLanguageDetector);
+
             var crawler = new Crawler(apiFactory);
-            var augmenter = new Augmenter(apiFactory);
+            var augmenter = new Augmenter(apiFactory, combinedLanguageDetector);
+
             // crawler.addCategory("audiobooks");
             // crawler.addProfile("argonhörbücher");
             // crawler.addArtist("2YlvvdXUqRjiXmeL2GRuZ9", "Sherlock Holmes");
@@ -55,7 +64,7 @@ public class App {
             augmenter.augmentAlbums(prunedAlbums);
             augmenter.augmentArtists(prunedArtists);
 
-            albumDAO.persist(prunedAlbums);
+            albumDAO.upsert(prunedAlbums);
 
             System.out.println("Total amount of requests performed: " + CountingSpotifyHttpManager.getCount());
         } catch (ParseException | SpotifyWebApiException | IOException e) {

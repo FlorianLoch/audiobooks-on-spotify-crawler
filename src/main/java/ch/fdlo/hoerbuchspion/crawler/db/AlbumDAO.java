@@ -22,7 +22,7 @@ public class AlbumDAO {
     this.em = factory.createEntityManager();
   }
 
-  public void persist(Collection<Album> albums) {
+  public void upsert(Collection<Album> albums) {
     this.em.getTransaction().begin();
 
     for (Album album : albums) {
@@ -30,5 +30,14 @@ public class AlbumDAO {
     }
 
     this.em.getTransaction().commit();
+  }
+
+  public boolean recordExists(String id) {
+    // TODO: implement: https://stackoverflow.com/questions/4374730/how-to-check-if-a-record-exists-using-jpa
+    return false;
+  }
+
+  public Album findById(String id) {
+    return this.em.find(Album.class, id);
   }
 }

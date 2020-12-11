@@ -12,6 +12,7 @@ import com.wrapper.spotify.model_objects.specification.Copyright;
 import org.apache.hc.core5.http.ParseException;
 
 import ch.fdlo.hoerbuchspion.AuthorizedSpotifyAPIFactory;
+import ch.fdlo.hoerbuchspion.crawler.languageDetector.LanguageDetector;
 import ch.fdlo.hoerbuchspion.crawler.types.Album;
 import ch.fdlo.hoerbuchspion.crawler.types.AlbumDetails;
 import ch.fdlo.hoerbuchspion.crawler.types.Artist;
@@ -20,9 +21,11 @@ import ch.fdlo.hoerbuchspion.crawler.types.Track;
 
 public class Augmenter {
   private SpotifyApi api;
+  private LanguageDetector languageDetector;
 
-  public Augmenter(AuthorizedSpotifyAPIFactory apiFactory) throws ParseException, SpotifyWebApiException, IOException {
+  public Augmenter(AuthorizedSpotifyAPIFactory apiFactory, LanguageDetector languageDetector) throws ParseException, SpotifyWebApiException, IOException {
     this.api = apiFactory.createInstance();
+    this.languageDetector = languageDetector;
   }
 
   public void augmentAlbums(Collection<Album> albums) throws ParseException, SpotifyWebApiException, IOException {
@@ -46,7 +49,7 @@ public class Augmenter {
 
       albumDetails.setPopularity(spotifyAlbum.getPopularity());
 
-      albumDetails.setAssumedLanguage(LanguageDetector.detectLanguage(album.getName()));
+      albumDetails.setAssumedLanguage(this.languageDetector.detectLanguage(album.getName()));
 
       var tracksFromAlbumFetcher = new TracksFromAlbumFetcher(this.api, album.getId());
       for (Track track : tracksFromAlbumFetcher.fetch()) {

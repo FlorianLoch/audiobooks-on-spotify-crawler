@@ -4,7 +4,7 @@ import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
-import ch.fdlo.hoerbuchspion.crawler.LanguageDetector.Language;
+import ch.fdlo.hoerbuchspion.crawler.languageDetector.Language;
 
 @Embeddable
 public class AlbumDetails {
