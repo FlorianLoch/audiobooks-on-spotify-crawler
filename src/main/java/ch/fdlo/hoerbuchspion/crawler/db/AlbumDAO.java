@@ -32,9 +32,11 @@ public class AlbumDAO {
     this.em.getTransaction().commit();
   }
 
-  public boolean recordExists(String id) {
-    // TODO: implement: https://stackoverflow.com/questions/4374730/how-to-check-if-a-record-exists-using-jpa
-    return false;
+  public boolean recordExists(Album album) {
+    var query = this.em.createQuery("SELECT COUNT(1) FROM Album a WHERE a.id = :id", Long.class);
+    query.setParameter("id", album.getId());
+
+    return query.getSingleResult() == 1;
   }
 
   public Album findById(String id) {

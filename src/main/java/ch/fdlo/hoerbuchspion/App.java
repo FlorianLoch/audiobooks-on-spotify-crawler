@@ -11,7 +11,6 @@ import ch.fdlo.hoerbuchspion.crawler.Augmenter;
 import ch.fdlo.hoerbuchspion.crawler.Crawler;
 import ch.fdlo.hoerbuchspion.crawler.db.AlbumDAO;
 import ch.fdlo.hoerbuchspion.crawler.languageDetector.CombiningLanguageDetector;
-import ch.fdlo.hoerbuchspion.crawler.languageDetector.LanguageDetector;
 import ch.fdlo.hoerbuchspion.crawler.languageDetector.OptimaizeLanguageDetector;
 import ch.fdlo.hoerbuchspion.crawler.languageDetector.WordlistLanguageDetector;
 import ch.fdlo.hoerbuchspion.crawler.types.Album;
@@ -39,7 +38,8 @@ public class App {
             var optimaizeLanguageDetector = new OptimaizeLanguageDetector();
             var wordlistLanguageDetector = new WordlistLanguageDetector();
             wordlistLanguageDetector.tryToAddDebianWordlists();
-            var combinedLanguageDetector = new CombiningLanguageDetector(optimaizeLanguageDetector, wordlistLanguageDetector);
+            var combinedLanguageDetector = new CombiningLanguageDetector(optimaizeLanguageDetector,
+                    wordlistLanguageDetector);
 
             var crawler = new Crawler(apiFactory);
             var augmenter = new Augmenter(apiFactory, combinedLanguageDetector);
@@ -55,10 +55,10 @@ public class App {
             var prunedArtists = new HashSet<Artist>();
 
             for (var album : albums) {
-                // if (!albumDAO.recordExists(album.getId())) {
+                if (!albumDAO.recordExists(album)) {
                     prunedAlbums.add(album);
                     prunedArtists.add(album.getArtist());
-                // }
+                }
             }
 
             augmenter.augmentAlbums(prunedAlbums);
@@ -67,6 +67,11 @@ public class App {
             albumDAO.upsert(prunedAlbums);
 
             System.out.println("Total amount of requests performed: " + CountingSpotifyHttpManager.getCount());
+            var cachedAlbumsCount = albums.size() - prunedAlbums.size();
+            System.out.println(cachedAlbumsCount + " albums were in the DB already. " + prunedAlbums.size()
+                    + " had to be looked up.");
+            System.out.println(prunedArtists.size()
+                    + " artist details had to be (re)fetched - because they are associated with one album not present in the DB so far.");
         } catch (ParseException | SpotifyWebApiException | IOException e) {
             // TODO: Auto-generated catch block
             e.printStackTrace();

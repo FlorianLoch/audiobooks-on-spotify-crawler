@@ -11,7 +11,7 @@ import javax.persistence.Table;
 import com.wrapper.spotify.model_objects.specification.ArtistSimplified;
 
 @Entity
-@Table
+@Table(name = "ARTIST")
 public class Artist {
   static Map<String, Artist> instances = new HashMap<>();
 
@@ -22,7 +22,8 @@ public class Artist {
   private ArtistDetails artistDetails;
 
   // Required by JPA
-  private Artist() {}
+  private Artist() {
+  }
 
   private Artist(String id, String name) {
     this.id = id;

@@ -11,7 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table
+@Table(name = "ALBUM")
 public class Album {
   @Id
   private String id;
@@ -26,7 +26,8 @@ public class Album {
   private AlbumDetails albumDetails;
 
   // Required by JPA
-  private Album() {}
+  private Album() {
+  }
 
   public Album(AlbumSimplified album) {
     this.id = album.getId();
@@ -107,7 +108,7 @@ public class Album {
   }
 
   public enum StoryType {
-    ABRIDGED("abridged"), UNABRIDGED("unabridged"), UNKNOWN ("unknown");
+    ABRIDGED("abridged"), UNABRIDGED("unabridged"), UNKNOWN("unknown");
 
     private String name;
 
