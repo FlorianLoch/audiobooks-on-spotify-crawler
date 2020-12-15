@@ -2,25 +2,13 @@ package ch.fdlo.hoerbuchspion.crawler.languageDetector;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import com.optimaize.langdetect.LanguageDetectorBuilder;
-import com.optimaize.langdetect.i18n.LdLocale;
-import com.optimaize.langdetect.ngram.NgramExtractors;
-import com.optimaize.langdetect.profiles.LanguageProfile;
-import com.optimaize.langdetect.profiles.LanguageProfileReader;
-import com.optimaize.langdetect.text.CommonTextObjectFactories;
-import com.optimaize.langdetect.text.TextObjectFactory;
 
 public class WordlistLanguageDetector implements LanguageDetector {
   private static List<LangFileTuple> DEBIAN_WORDLISTS = new ArrayList<>();
@@ -28,14 +16,15 @@ public class WordlistLanguageDetector implements LanguageDetector {
   private List<WordlistTuple> wordlists = new ArrayList<>();
 
   static {
-    DEBIAN_WORDLISTS.add(new LangFileTuple(Language.EN, "/usr/share/dict/american-english-huge"));
-    DEBIAN_WORDLISTS.add(new LangFileTuple(Language.DE, "/usr/share/dict/ngerman"));
+    // TODO: Add lists for other languages declared in Language.
+    DEBIAN_WORDLISTS.add(new LangFileTuple(Language.EN, Paths.get("/usr/share/dict/american-english-huge")));
+    DEBIAN_WORDLISTS.add(new LangFileTuple(Language.DE, Paths.get("/usr/share/dict/ngerman")));
   }
 
-  public void addWordlist(Language language, String file) throws IOException {
+  public void addWordlist(Language language, Path file) throws IOException {
     Set<String> set = new HashSet<>();
 
-    try (Stream<String> stream = Files.lines(Paths.get(file))) {
+    try (Stream<String> stream = Files.lines(file)) {
       stream.forEach(word -> {
         set.add(word.toLowerCase());
       });
@@ -88,6 +77,10 @@ public class WordlistLanguageDetector implements LanguageDetector {
     int counter = 0;
 
     for (var word : text.split(" ")) {
+      if (word.isBlank()) {
+        continue;
+      }
+
       if (wordlist.contains(word)) {
         counter++;
       }
@@ -98,9 +91,9 @@ public class WordlistLanguageDetector implements LanguageDetector {
 
   private static class LangFileTuple {
     public Language lang;
-    public String file;
+    public Path file;
 
-    public LangFileTuple(Language lang, String file) {
+    public LangFileTuple(Language lang, Path file) {
       this.lang = lang;
       this.file = file;
     }
