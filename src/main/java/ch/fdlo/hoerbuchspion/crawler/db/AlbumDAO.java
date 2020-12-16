@@ -1,6 +1,7 @@
 package ch.fdlo.hoerbuchspion.crawler.db;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
@@ -12,12 +13,17 @@ public class AlbumDAO {
 
   private EntityManager em;
 
-  public AlbumDAO() {
-    this(DEFAULT_PERSISTENCE_UNIT_NAME);
+  public AlbumDAO(boolean verboseLogging) {
+    this(DEFAULT_PERSISTENCE_UNIT_NAME, verboseLogging);
   }
 
-  public AlbumDAO(String persistenceUnit) {
-    var factory = Persistence.createEntityManagerFactory(persistenceUnit);
+  public AlbumDAO(String persistenceUnit, boolean verboseLogging) {
+    var props = new LinkedHashMap<>();
+    if (verboseLogging) {
+      props.put("eclipselink.logging.level", "FINE");
+    }
+
+    var factory = Persistence.createEntityManagerFactory(persistenceUnit, props);
 
     this.em = factory.createEntityManager();
   }

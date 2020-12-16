@@ -19,10 +19,14 @@ import ch.fdlo.hoerbuchspion.crawler.types.Artist;
 public class App {
     public static final String ENV_CLIENT_ID = "HOERBUCHSPION_SPOTIFY_CLIENTID";
     public static final String ENV_CLIENT_SECRET = "HOERBUCHSPION_SPOTIFY_CLIENTSECRET";
+    public static final String ENV_VERBOSE_LOGGING = "HOERBUCHSPION_VERBOSE_LOGGING";
 
     public static void main(String[] args) {
         final String clientId = System.getenv(ENV_CLIENT_ID);
         final String clientSecret = System.getenv(ENV_CLIENT_SECRET);
+        final boolean verboseLogging = Boolean.parseBoolean(System.getenv(ENV_VERBOSE_LOGGING)); // accepts only "true"
+                                                                                                 // as true, case does
+                                                                                                 // not matter
 
         if (clientId == null || clientId.isEmpty() || clientSecret == null || clientSecret.isEmpty()) {
             System.out.println("Credentials for Spotify API not found. Please make sure '" + ENV_CLIENT_ID + "' and '"
@@ -30,7 +34,9 @@ public class App {
             System.exit(1);
         }
 
-        AlbumDAO albumDAO = new AlbumDAO();
+        AlbumDAO albumDAO = new AlbumDAO(verboseLogging);
+
+        System.out.println("Connected to DB.");
 
         AuthorizedSpotifyAPIFactory apiFactory = new AuthorizedSpotifyAPIFactory(clientId, clientSecret);
 

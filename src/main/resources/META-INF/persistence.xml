@@ -8,17 +8,18 @@
         <class>ch.fdlo.hoerbuchspion.crawler.types.Artist</class>
 
         <properties>
-            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
-            <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost:1521/audiobooks" />
-            <property name="javax.persistence.jdbc.user" value="sa" />
-            <!-- <property name="eclipselink.ddl-generation" value="create-or-extend-tables" /> -->
-            <property name="eclipselink.ddl-generation" value="create-or-extend-tables" />
-            <property name="eclipselink.ddl-generation.output-mode" value="sql-script" />
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost:1521/audiobooks"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
+            <!-- Valid output options are "database", "sql-script" and "both" /> -->
+            <property name="eclipselink.ddl-generation.output-mode" value="both"/>
             <property name="eclipselink.create-ddl-jdbc-file-name" value="createDB.sql"/>
             <property name="eclipselink.drop-ddl-jdbc-file-name" value="dropDB.sql"/>
-            <!-- <property name="eclipselink.ddl-generation.output-mode" value="database" /> -->
-            <!-- For logging levels see: https://www.eclipse.org/eclipselink/documentation/2.4/jpa/extensions/p_logging_level.htm -->
-            <property name="eclipselink.logging.level" value="WARNING" />
+            <!-- For logging levels see: https://www.eclipse.org/eclipselink/documentation/2.4/jpa/extensions/p_logging_level.htm
+            There is a ENV switch in AlbumDAO to set a more verbose level. -->
+            <property name="eclipselink.logging.level" value="SEVERE"/>
+            <property name="eclipselink.logging.logger" value="org.eclipse.persistence.logging.slf4j.SLF4JLogger"/>
             <!-- <property name="javax.persistence.schema-generation.database.action" value="none"/> -->
         </properties>
     </persistence-unit>
