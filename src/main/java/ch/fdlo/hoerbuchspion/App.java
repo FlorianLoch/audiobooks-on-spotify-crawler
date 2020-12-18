@@ -10,6 +10,7 @@ import org.apache.hc.core5.http.ParseException;
 import ch.fdlo.hoerbuchspion.crawler.Augmenter;
 import ch.fdlo.hoerbuchspion.crawler.Crawler;
 import ch.fdlo.hoerbuchspion.crawler.db.AlbumDAO;
+import ch.fdlo.hoerbuchspion.crawler.db.DBHelper;
 import ch.fdlo.hoerbuchspion.crawler.languageDetector.CombiningLanguageDetector;
 import ch.fdlo.hoerbuchspion.crawler.languageDetector.OptimaizeLanguageDetector;
 import ch.fdlo.hoerbuchspion.crawler.languageDetector.WordlistLanguageDetector;
@@ -34,7 +35,8 @@ public class App {
             System.exit(1);
         }
 
-        AlbumDAO albumDAO = new AlbumDAO(verboseLogging);
+        var entityManager = DBHelper.getEntityManagerInstance(verboseLogging);
+        AlbumDAO albumDAO = new AlbumDAO(entityManager);
 
         System.out.println("Connected to DB.");
 
