@@ -6,6 +6,8 @@ import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
 import javax.persistence.CascadeType;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -20,7 +22,9 @@ public class Album {
   private Artist artist;
   private String releaseDate;
   private String albumArtUrl;
+  @Enumerated(EnumType.STRING)
   private AlbumType albumType;
+  @Enumerated(EnumType.STRING)
   private StoryType storyType;
   @Embedded // effectively a OneToOne relation
   private AlbumDetails albumDetails;

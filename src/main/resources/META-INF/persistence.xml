@@ -6,6 +6,7 @@
 
         <class>ch.fdlo.hoerbuchspion.crawler.types.Album</class>
         <class>ch.fdlo.hoerbuchspion.crawler.types.Artist</class>
+        <class>ch.fdlo.hoerbuchspion.crawler.types.CrawlStatsKV</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
