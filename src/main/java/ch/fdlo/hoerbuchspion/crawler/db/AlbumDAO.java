@@ -14,13 +14,7 @@ public class AlbumDAO {
   }
 
   public void upsert(Collection<Album> albums) {
-    this.em.getTransaction().begin();
-
-    for (Album album : albums) {
-      this.em.merge(album);
-    }
-
-    this.em.getTransaction().commit();
+    DBHelper.mergeIterable(albums, em);
   }
 
   public boolean recordExists(Album album) {

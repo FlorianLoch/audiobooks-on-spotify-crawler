@@ -27,4 +27,14 @@ public class DBHelper {
 
     return instance;
   }
+
+  public static <T> void mergeIterable(Iterable<T> iterable, EntityManager em) {
+    em.getTransaction().begin();
+
+    for (var item : iterable) {
+      em.merge(item);
+    }
+
+    em.getTransaction().commit();
+  }
 }
