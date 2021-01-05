@@ -92,6 +92,7 @@ public class App {
             stats.add(new CrawlStatsKV(KVKey.ARTIST_DETAILS_FETCHED_COUNT, prunedArtists.size()));
             stats.add(new CrawlStatsKV(KVKey.DURATION_LAST_RUN_MS, timeElapsed));
             stats.add(new CrawlStatsKV(KVKey.TOTAL_API_REQUESTS_COUNT, CountingSpotifyHttpManager.getCount()));
+            stats.add(new CrawlStatsKV(KVKey.LAST_RUN_PERFOMED_AT, Instant.now().toEpochMilli()));
 
             crawlStatsKVDAO.upsert(stats);
 
