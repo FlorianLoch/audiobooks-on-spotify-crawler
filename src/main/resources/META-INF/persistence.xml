@@ -12,6 +12,7 @@
             <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
             <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost:1521/audiobooks"/>
             <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence." value=""/>
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
             <!-- Valid output options are "database", "sql-script" and "both" /> -->
             <property name="eclipselink.ddl-generation.output-mode" value="both"/>

@@ -2,6 +2,7 @@ package ch.fdlo.hoerbuchspion.crawler.types;
 
 import com.wrapper.spotify.enums.AlbumGroup;
 import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
+import com.wrapper.spotify.model_objects.specification.Image;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Embedded;
@@ -11,6 +12,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.util.List;
 
 @Entity
 @Table(name = "ALBUM")
@@ -21,12 +23,13 @@ public class Album {
   @ManyToOne(cascade = CascadeType.MERGE)
   private Artist artist;
   private String releaseDate;
-  private String albumArtUrl;
+  @Embedded // effectively a OneToOne relation
+  private AlbumArtURLs albumArtURLs; // Same order as provided by Spotify, highest quality first
   @Enumerated(EnumType.STRING)
   private AlbumType albumType;
   @Enumerated(EnumType.STRING)
   private StoryType storyType;
-  @Embedded // effectively a OneToOne relation
+  @Embedded
   private AlbumDetails albumDetails;
 
   // Required by JPA
@@ -44,10 +47,7 @@ public class Album {
 
     this.releaseDate = album.getReleaseDate();
 
-    this.albumArtUrl = "";
-    if (album.getImages().length > 0) {
-      this.albumArtUrl = album.getImages()[0].getUrl();
-    }
+    this.albumArtURLs = AlbumArtURLs.from(album.getImages());
 
     // albumGroup reflects the relation between the artist and this album.
     // albumType describes the album itself - we prefer to check the upper one.
@@ -72,8 +72,8 @@ public class Album {
     return releaseDate;
   }
 
-  public String getAlbumArtUrl() {
-    return albumArtUrl;
+  public AlbumArtURLs getAlbumArtURLs() {
+    return albumArtURLs;
   }
 
   public AlbumType getAlbumType() {
