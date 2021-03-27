@@ -12,7 +12,7 @@ public class AlbumDetails {
   private long totalDurationMs;
   private boolean allTracksNotExplicit = true;
   private boolean allTracksPlayable = true;
-  private String previewURL = "";
+  private String preview = ""; // URL to preview clip
   private int popularity;
   private String label = "";
   private String copyright = "";
@@ -29,8 +29,8 @@ public class AlbumDetails {
 
     this.allTracksPlayable = this.allTracksPlayable && track.isPlayable();
 
-    if (this.previewURL.isEmpty() && !track.getPreviewUrl().isEmpty()) {
-      this.previewURL = track.getPreviewUrl();
+    if (this.preview.isEmpty() && !track.getPreviewUrl().isEmpty()) {
+      this.preview = track.getPreviewUrl();
     }
   }
 

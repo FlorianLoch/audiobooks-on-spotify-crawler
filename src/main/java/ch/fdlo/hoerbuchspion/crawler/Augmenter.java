@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
+import ch.fdlo.hoerbuchspion.crawler.types.*;
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.specification.Copyright;
@@ -13,11 +14,6 @@ import org.apache.hc.core5.http.ParseException;
 
 import ch.fdlo.hoerbuchspion.AuthorizedSpotifyAPIFactory;
 import ch.fdlo.hoerbuchspion.crawler.languageDetector.LanguageDetector;
-import ch.fdlo.hoerbuchspion.crawler.types.Album;
-import ch.fdlo.hoerbuchspion.crawler.types.AlbumDetails;
-import ch.fdlo.hoerbuchspion.crawler.types.Artist;
-import ch.fdlo.hoerbuchspion.crawler.types.ArtistDetails;
-import ch.fdlo.hoerbuchspion.crawler.types.Track;
 
 public class Augmenter {
   private SpotifyApi api;
@@ -66,10 +62,7 @@ public class Augmenter {
 
       var spotifyArtist = this.api.getArtist(artist.getId()).build().execute();
 
-      if (spotifyArtist.getImages().length > 0) {
-        artistDetails.setArtistImage(spotifyArtist.getImages()[0].getUrl());
-      }
-
+      artistDetails.setArtistImage(ImageURLs.from(spotifyArtist.getImages()));
       artistDetails.setPopularity(spotifyArtist.getPopularity());
 
       artist.setArtistDetails(artistDetails);

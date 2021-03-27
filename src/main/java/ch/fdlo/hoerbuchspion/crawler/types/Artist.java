@@ -18,7 +18,7 @@ public class Artist {
   @Id
   private String id;
   private String name;
-  @Embedded // effectively a OneToOne relation
+  @Embedded
   private ArtistDetails artistDetails;
 
   // Required by JPA
