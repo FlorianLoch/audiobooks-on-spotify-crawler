@@ -1,9 +1,14 @@
 package ch.fdlo.hoerbuchspion.crawler.types;
 
+import ch.fdlo.hoerbuchspion.crawler.languageDetector.Language;
 import com.wrapper.spotify.enums.AlbumGroup;
 import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
+import com.wrapper.spotify.model_objects.specification.Copyright;
 
 import javax.persistence.*;
+import java.util.Arrays;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "ALBUM")
@@ -25,31 +30,60 @@ public class Album {
   private AlbumType albumType;
   @Enumerated(EnumType.STRING)
   private StoryType storyType;
-  @Embedded
-  private AlbumDetails albumDetails;
+  private int totalTracks;
+  private long totalDurationMs;
+  private boolean allTracksNotExplicit = true;
+  private boolean allTracksPlayable = true;
+  private String preview = ""; // URL to preview clip
+  private int popularity;
+  private String label;
+  private String copyright;
+  @Enumerated(EnumType.STRING)
+  private Language assumedLanguage = Language.UNKNOWN;
 
   // Required by JPA
   private Album() {
   }
 
-  public Album(AlbumSimplified album) {
+  public Album(com.wrapper.spotify.model_objects.specification.Album album, Language assumedLanguage) {
     this.id = album.getId();
 
     this.name = album.getName();
 
     assert (album.getArtists().length > 0);
+    // TODO: Handle cases of multiple artists
     var primaryArtist = album.getArtists()[0];
-    this.artist = Artist.getArtist(primaryArtist);
+    this.artist = Artist.getArtist(primaryArtist.getId());
 
     this.releaseDate = album.getReleaseDate();
 
     this.albumArtURLs = ImageURLs.from(album.getImages());
 
-    // albumGroup reflects the relation between the artist and this album.
-    // albumType describes the album itself - we prefer to check the upper one.
-    this.albumType = AlbumType.from(album.getAlbumGroup());
+    this.albumType = AlbumType.from(album.getAlbumType());
 
     this.storyType = StoryType.analyze(album.getName());
+
+    this.popularity = album.getPopularity();
+
+    this.label = album.getLabel();
+
+    this.copyright = Arrays.stream(album.getCopyrights()).map(Copyright::getText).collect(Collectors.joining(", "));
+
+    this.assumedLanguage = assumedLanguage;
+  }
+
+  public void digestTrack(Track track) {
+    this.totalTracks++;
+
+    this.totalDurationMs = this.totalDurationMs + track.getDurationMs();
+
+    this.allTracksNotExplicit = this.allTracksNotExplicit && !track.isExplicit();
+
+    this.allTracksPlayable = this.allTracksPlayable && track.isPlayable();
+
+    if (this.preview.isEmpty() && !track.getPreviewUrl().isEmpty()) {
+      this.preview = track.getPreviewUrl();
+    }
   }
 
   public String getId() {
@@ -80,14 +114,6 @@ public class Album {
     return storyType;
   }
 
-  public AlbumDetails getAlbumDetails() {
-    return albumDetails;
-  }
-
-  public void setAlbumDetails(AlbumDetails albumDetails) {
-    this.albumDetails = albumDetails;
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof Album) {
@@ -112,7 +138,7 @@ public class Album {
 
     private String name;
 
-    private StoryType(String name) {
+    StoryType(String name) {
       this.name = name;
     }
 
@@ -124,7 +150,7 @@ public class Album {
     public static StoryType analyze(String albumName) {
       albumName = albumName.toLowerCase();
 
-      // As the check below is a subset we need to check for the full sequence first
+      // As the second conditional block below is a subset we need to check for the full sequence first
       if (albumName.contains("unabridged") || albumName.contains("ungekürzt")) {
         return UNABRIDGED;
       }
@@ -138,9 +164,9 @@ public class Album {
   }
 
   public enum AlbumType {
-    ALBUM, SINGLE, COMPILATION, APPEARS_ON, UNKNOWN;
+    ALBUM, SINGLE, COMPILATION;
 
-    public static AlbumType from(AlbumGroup albumType) {
+    public static AlbumType from(com.wrapper.spotify.enums.AlbumType albumType) {
       switch (albumType) {
         case ALBUM:
           return ALBUM;
@@ -148,10 +174,10 @@ public class Album {
           return SINGLE;
         case COMPILATION:
           return COMPILATION;
-        case APPEARS_ON:
-          return APPEARS_ON;
         default:
-          return UNKNOWN;
+          // This should never happen except the AlbumType enum gets extended
+          assert false;
+          return null;
       }
     }
   }

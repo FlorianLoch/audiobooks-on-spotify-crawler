@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Collectors;
 
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 
@@ -38,6 +40,8 @@ public class App {
             System.exit(1);
         }
 
+        System.out.println("Utilizing " + ForkJoinPool.getCommonPoolParallelism() + " threads.");
+
         Instant start = Instant.now();
 
         var entityManager = DBHelper.getEntityManagerInstance(verboseLogging);
@@ -45,6 +49,12 @@ public class App {
         var crawlStatsKVDAO = new CrawlStatsKVDAO(entityManager);
 
         System.out.println("Connected to DB.");
+
+        if (args.length == 1 && args[0].equals("--clean-run")) {
+            albumDAO.truncateTables();
+            crawlStatsKVDAO.truncateTable();
+            System.out.println("Truncated tables.");
+        }
 
         AuthorizedSpotifyAPIFactory apiFactory = new AuthorizedSpotifyAPIFactory(clientId, clientSecret);
 
@@ -63,22 +73,15 @@ public class App {
             // crawler.addArtist("2YlvvdXUqRjiXmeL2GRuZ9", "Sherlock Holmes");
             crawler.addArtist("0I5CMdNszqP3qJTmhGxlsA", "Ken Follett");
 
-            var albums = crawler.crawlAlbums();
-            var prunedAlbums = new HashSet<Album>();
-            // TODO: rename this and explain why we do this
-            var prunedArtists = new HashSet<Artist>();
+            var simpleAlbums = crawler.crawlAlbums();
+            var fullAlbums = simpleAlbums.parallelStream().
+                    filter(simpleAlbum -> !albumDAO.recordExists(simpleAlbum.getId())).
+                    map(augmenter::inflateAlbum).
+                    collect(Collectors.toList());
 
-            for (var album : albums) {
-                if (!albumDAO.recordExists(album)) {
-                    prunedAlbums.add(album);
-                    prunedArtists.add(album.getArtist());
-                }
-            }
+            Artist.getAllArtists().parallelStream().forEach(augmenter::augmentArtist);
 
-            augmenter.augmentAlbums(prunedAlbums);
-            augmenter.augmentArtists(prunedArtists);
-
-            albumDAO.upsert(prunedAlbums);
+            albumDAO.upsert(fullAlbums);
 
             long timeElapsed = Duration.between(start, Instant.now()).toMillis();
 
@@ -87,20 +90,20 @@ public class App {
             stats.add(new CrawlStatsKV(KVKey.PLAYLISTS_CONSIDERED_COUNT, 0));
             stats.add(new CrawlStatsKV(KVKey.PROFILES_CONSIDERED_COUNT, 0));
             stats.add(new CrawlStatsKV(KVKey.ARTISTS_CONSIDERED_COUNT, 1));
-            stats.add(new CrawlStatsKV(KVKey.ALBUMS_FOUND_COUNT, albums.size()));
-            stats.add(new CrawlStatsKV(KVKey.ALBUM_DETAILS_FETCHED_COUNT, prunedAlbums.size()));
-            stats.add(new CrawlStatsKV(KVKey.ARTIST_DETAILS_FETCHED_COUNT, prunedArtists.size()));
+            stats.add(new CrawlStatsKV(KVKey.ALBUMS_FOUND_COUNT, simpleAlbums.size()));
+            stats.add(new CrawlStatsKV(KVKey.ALBUM_DETAILS_FETCHED_COUNT, fullAlbums.size()));
+            stats.add(new CrawlStatsKV(KVKey.ARTIST_DETAILS_FETCHED_COUNT, Artist.getAllArtists().size()));
             stats.add(new CrawlStatsKV(KVKey.DURATION_LAST_RUN_MS, timeElapsed));
             stats.add(new CrawlStatsKV(KVKey.TOTAL_API_REQUESTS_COUNT, CountingSpotifyHttpManager.getCount()));
             stats.add(new CrawlStatsKV(KVKey.LAST_RUN_PERFOMED_AT, Instant.now().toEpochMilli()));
 
             crawlStatsKVDAO.upsert(stats);
 
-            var cachedAlbumsCount = albums.size() - prunedAlbums.size();
+            var cachedAlbumsCount = simpleAlbums.size() - fullAlbums.size();
             System.out.println("Total amount of requests performed: " + CountingSpotifyHttpManager.getCount());
-            System.out.println(cachedAlbumsCount + " albums were in the DB already. " + prunedAlbums.size()
+            System.out.println(cachedAlbumsCount + " albums were in the DB already. " + fullAlbums.size()
                     + " had to be looked up.");
-            System.out.println(prunedArtists.size()
+            System.out.println(Artist.getAllArtists().size()
                     + " artist details had to be (re)fetched - because they are associated with one album not present in the DB so far.");
 
         } catch (ParseException | SpotifyWebApiException | IOException e) {

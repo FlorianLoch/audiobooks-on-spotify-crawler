@@ -1,34 +1,22 @@
 package ch.fdlo.hoerbuchspion.crawler;
 
-import java.io.IOException;
-
+import ch.fdlo.hoerbuchspion.crawler.types.SpotifyObject;
 import com.neovisionaries.i18n.CountryCode;
 import com.wrapper.spotify.SpotifyApi;
-import com.wrapper.spotify.exceptions.SpotifyWebApiException;
-import com.wrapper.spotify.model_objects.specification.PlaylistSimplified;
 
-import org.apache.hc.core5.http.ParseException;
-
-import ch.fdlo.hoerbuchspion.crawler.types.Playlist;
-
-public class PlaylistsFromCategoryFetcher extends AbstractFetcher<Playlist> {
-  private final String category;
-
-  public PlaylistsFromCategoryFetcher(SpotifyApi authorizedApi, String category) {
+public class PlaylistsFromCategoryFetcher extends AbstractFetcher<SpotifyObject> {
+  public PlaylistsFromCategoryFetcher(SpotifyApi authorizedApi) {
     super(authorizedApi);
-
-    this.category = category;
   }
 
   @Override
-  public Iterable<Playlist> fetch() throws ParseException, SpotifyWebApiException, IOException {
-    var builder = this.spotifyApi.getCategorysPlaylists(this.category);
+  public Iterable<SpotifyObject> fetch(String id) {
+    var builder = this.spotifyApi.getCategorysPlaylists(id);
 
     builder.country(CountryCode.DE);
 
-    return this.executeRequest(builder, (PlaylistSimplified playlist) -> {
-      return new Playlist(playlist);
+    return this.executeRequest(builder, playlist -> {
+      return SpotifyObject.playlist(playlist.getId(), playlist.getName());
     });
   }
-
 }

@@ -16,7 +16,7 @@ import org.apache.hc.core5.http.ParseException;
     final static int LIMIT = 50;
     final IPagingRequestBuilder<T, ? extends IRequest.Builder<Paging<T>, ?>> builder;
     T[] currentPageItems;
-    int curIndex; // gets reseted with every new request
+    int curIndex; // gets reset with every new request
     int curOffset = -LIMIT; // in order to start at 0 in the first iteration
     int totalItems;
 

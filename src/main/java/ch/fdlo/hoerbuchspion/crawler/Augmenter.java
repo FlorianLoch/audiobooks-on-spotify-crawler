@@ -16,56 +16,51 @@ import ch.fdlo.hoerbuchspion.AuthorizedSpotifyAPIFactory;
 import ch.fdlo.hoerbuchspion.crawler.languageDetector.LanguageDetector;
 
 public class Augmenter {
-  private SpotifyApi api;
-  private LanguageDetector languageDetector;
+  private final SpotifyApi api;
+  private final LanguageDetector languageDetector;
+  private final TracksFromAlbumFetcher tracksFromAlbumFetcher;
 
   public Augmenter(AuthorizedSpotifyAPIFactory apiFactory, LanguageDetector languageDetector) throws ParseException, SpotifyWebApiException, IOException {
     this.api = apiFactory.createInstance();
     this.languageDetector = languageDetector;
+    this.tracksFromAlbumFetcher = new TracksFromAlbumFetcher(this.api);
   }
 
-  public void augmentAlbums(Collection<Album> albums) throws ParseException, SpotifyWebApiException, IOException {
-    for (Album album : albums) {
-      var albumDetails = new AlbumDetails();
+  public Album inflateAlbum(SpotifyObject simpleAlbum) {
+    try {
+        // TODO: Improve error handling
+        var spotifyAlbum = this.api.getAlbum(simpleAlbum.getId()).build().execute();
 
-      var spotifyAlbum = this.api.getAlbum(album.getId()).build().execute();
+        var assumedLanguage = this.languageDetector.detectLanguage(simpleAlbum.getName());
 
-      // TODO: looks horrible
-      var copyright = String.join(", ", new Iterable<String>() {
-        @Override
-        public Iterator<String> iterator() {
-          return Stream.of(spotifyAlbum.getCopyrights()).map((Copyright copyright) -> {
-            return copyright.getText();
-          }).iterator();
-        }
-      });
-      albumDetails.setCopyright(copyright);
+        var fullAlbum = new Album(spotifyAlbum, assumedLanguage);
 
-      albumDetails.setLabel(spotifyAlbum.getLabel());
+        tracksFromAlbumFetcher.fetch(simpleAlbum.getId()).forEach(fullAlbum::digestTrack);
 
-      albumDetails.setPopularity(spotifyAlbum.getPopularity());
+        return fullAlbum;
+    } catch (IOException e) {
+      e.printStackTrace();
+    } catch (SpotifyWebApiException e) {
+      e.printStackTrace();
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
 
-      albumDetails.setAssumedLanguage(this.languageDetector.detectLanguage(album.getName()));
+    return null;
+  }
 
-      var tracksFromAlbumFetcher = new TracksFromAlbumFetcher(this.api, album.getId());
-      for (Track track : tracksFromAlbumFetcher.fetch()) {
-        albumDetails.processTrack(track);
+  public void augmentArtist(Artist artist) {
+      try {
+          var spotifyArtist = this.api.getArtist(artist.getId()).build().execute();
+          artist.setName(spotifyArtist.getName());
+          artist.setArtistImage(ImageURLs.from(spotifyArtist.getImages()));
+          artist.setPopularity(spotifyArtist.getPopularity());
+      } catch (IOException e) {
+          e.printStackTrace();
+      } catch (SpotifyWebApiException e) {
+          e.printStackTrace();
+      } catch (ParseException e) {
+          e.printStackTrace();
       }
-
-      album.setAlbumDetails(albumDetails);
-    }
-  }
-
-  public void augmentArtists(Collection<Artist> artists) throws ParseException, SpotifyWebApiException, IOException {
-    for (Artist artist : artists) {
-      var artistDetails = new ArtistDetails();
-
-      var spotifyArtist = this.api.getArtist(artist.getId()).build().execute();
-
-      artistDetails.setArtistImage(ImageURLs.from(spotifyArtist.getImages()));
-      artistDetails.setPopularity(spotifyArtist.getPopularity());
-
-      artist.setArtistDetails(artistDetails);
-    }
   }
 }

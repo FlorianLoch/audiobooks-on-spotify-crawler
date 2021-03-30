@@ -1,10 +1,13 @@
 package ch.fdlo.hoerbuchspion.crawler;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import ch.fdlo.hoerbuchspion.crawler.types.SpotifyObject;
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 
@@ -13,44 +16,36 @@ import org.apache.hc.core5.http.ParseException;
 import ch.fdlo.hoerbuchspion.AuthorizedSpotifyAPIFactory;
 import ch.fdlo.hoerbuchspion.crawler.types.Album;
 import ch.fdlo.hoerbuchspion.crawler.types.Artist;
-import ch.fdlo.hoerbuchspion.crawler.types.Playlist;
 
 public class Crawler {
   private SpotifyApi api;
-  // TODO: Check which implemention of Set makes the most sense
-  private Set<String> categories = new HashSet<>();
-  private Set<String> profiles = new HashSet<>();
-  private Set<Playlist> playlists = new HashSet<>();
-  private Set<Artist> artists = new HashSet<>();
-  private Set<Album> albums = new HashSet<>();
+  private Set<SpotifyObject> categories = new HashSet<>();
+  private Set<SpotifyObject> profiles = new HashSet<>();
+  private Set<SpotifyObject> playlists = Collections.synchronizedSet(new HashSet<>());
+  private Set<SpotifyObject> artists = Collections.synchronizedSet(new HashSet<>());
+  private Set<SpotifyObject> albums = Collections.synchronizedSet(new HashSet<>());
 
   public Crawler(AuthorizedSpotifyAPIFactory apiFactory) throws ParseException, SpotifyWebApiException, IOException {
     this.api = apiFactory.createInstance();
   }
 
-  public void addCategory(String category) {
-    this.categories.add(category);
+  public void addArtist(String id, String name) {
+    this.artists.add(SpotifyObject.artist(id, name));
   }
 
-  public void addProfile(String profile) {
-    this.profiles.add(profile);
+  public void addCategory(String id, String name) {
+    this.categories.add(SpotifyObject.category(id, name));
   }
 
-  public void addPlaylist(String playlistId, String playlistName) {
-    this.playlists.add(new Playlist(playlistId, playlistName));
+  public void addPlaylist(String id, String name) {
+    this.playlists.add(SpotifyObject.playlist(id, name));
   }
 
-  public void addArtist(String artistId, String artistName) {
-    this.artists.add(Artist.getArtist(artistId, artistName));
+  public void addProfile(String id, String name) {
+    this.profiles.add(SpotifyObject.profile(id, name));
   }
 
-  // We need this one setter to be able to give the crawler a pruned album list,
-  // i.e., without the ones already in the db
-  public void setAlbums(Set<Album> albums) {
-    this.albums = albums;
-  }
-
-  public Set<Album> crawlAlbums() throws ParseException, SpotifyWebApiException, IOException {
+  public Set<SpotifyObject> crawlAlbums() throws ParseException, SpotifyWebApiException, IOException {
     this.collectPlaylists();
     System.out.println("Found " + this.playlists.size() + " playlists.");
 
@@ -63,37 +58,33 @@ public class Crawler {
     return Collections.unmodifiableSet(this.albums);
   }
 
-  private void collectPlaylists() throws ParseException, SpotifyWebApiException, IOException {
-    for (String category : this.categories) {
-      var playlistsFromCategoryFetcher = new PlaylistsFromCategoryFetcher(this.api, category);
-      for (Playlist playlist : playlistsFromCategoryFetcher.fetch()) {
-        this.playlists.add(playlist);
-      }
-    }
+  private void collectPlaylists() {
+    this.collect(this.categories, this.playlists, PlaylistsFromCategoryFetcher.class);
 
-    for (String profile : this.profiles) {
-      var playlistsFromCategoryFetcher = new PlaylistsFromProfileFetcher(this.api, profile);
-      for (Playlist playlist : playlistsFromCategoryFetcher.fetch()) {
-        this.playlists.add(playlist);
-      }
-    }
+    this.collect(this.profiles, this.playlists, PlaylistsFromProfileFetcher.class);
   }
 
-  private void collectArtists() throws ParseException, SpotifyWebApiException, IOException {
-    for (Playlist playlist : this.playlists) {
-      var artistsFromPlaylistsFetcher = new ArtistsFromPlaylistFetcher(this.api, playlist.getId());
-      for (Artist artist : artistsFromPlaylistsFetcher.fetch()) {
-        this.artists.add(artist);
-      }
-    }
+  private void collectArtists() {
+    this.collect(this.playlists, this.artists, ArtistsFromPlaylistFetcher.class);
   }
 
-  private void collectAlbums() throws ParseException, SpotifyWebApiException, IOException {
-    for (Artist artist : this.artists) {
-      var albumsFromArtistsFetcher = new AlbumsFromArtistFetcher(this.api, artist.getId());
-      for (Album album : albumsFromArtistsFetcher.fetch()) {
-        this.albums.add(album);
-      }
+  private void collectAlbums() {
+    this.collect(this.artists, this.albums, AlbumsFromArtistFetcher.class);
+  }
+
+  private <T extends AbstractFetcher<SpotifyObject>> void collect(Set<SpotifyObject> source, Set<SpotifyObject> target, Class<T> fetcherClass) {
+    AbstractFetcher<SpotifyObject> fetcher;
+
+    try {
+      fetcher = fetcherClass.getDeclaredConstructor(SpotifyApi.class).newInstance(this.api);
+    } catch (Exception e) {
+      // This should never happen, though
+      throw new Error(e);
     }
+
+    source.parallelStream().forEach(item -> {
+      // TODO: Handle runtime exceptions
+      fetcher.fetch(item.getId()).forEach(target::add);
+    });
   }
 }

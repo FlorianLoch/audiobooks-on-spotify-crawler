@@ -1,47 +1,28 @@
 package ch.fdlo.hoerbuchspion.crawler;
 
-import java.io.IOException;
+import ch.fdlo.hoerbuchspion.crawler.types.SpotifyObject;
 import com.wrapper.spotify.SpotifyApi;
-import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.IPlaylistItem;
-import com.wrapper.spotify.model_objects.specification.PlaylistTrack;
 import com.wrapper.spotify.model_objects.specification.Track;
 
-import org.apache.hc.core5.http.ParseException;
-
-import ch.fdlo.hoerbuchspion.crawler.types.Artist;
-
-public class ArtistsFromPlaylistFetcher extends AbstractFetcher<Artist> {
-  private final String playlistId;
-
-  public ArtistsFromPlaylistFetcher(SpotifyApi authorizedApi, String playlistId) {
+public class ArtistsFromPlaylistFetcher extends AbstractFetcher<SpotifyObject> {
+  public ArtistsFromPlaylistFetcher(SpotifyApi authorizedApi) {
     super(authorizedApi);
-
-    this.playlistId = playlistId;
   }
 
   @Override
-  public Iterable<Artist> fetch() throws ParseException, SpotifyWebApiException, IOException {
-    var builder = this.spotifyApi.getPlaylistsItems(this.playlistId);
+  public Iterable<SpotifyObject> fetch(String id) {
+    var builder = this.spotifyApi.getPlaylistsItems(id);
 
-    return this.executeRequest(builder, (PlaylistTrack playlistTrack) -> {
+    return this.executeRequest(builder, playlistTrack -> {
       IPlaylistItem playlistItem = playlistTrack.getTrack();
-      // TODO: Add instance of check
+      // TODO: Add instance-of check
       Track track = (Track) playlistItem;
       var artists = track.getArtists();
 
-      if (artists.length == 0) {
-        return Artist.getArtist("UNKNOWN", "UNKNOWN");
-      }
+      assert artists.length > 0;
 
-      return Artist.getArtist(artists[0]);
-
-      // return Arrays.asList(artists).stream().skip(1).map((artist) -> {
-      //   return artist.getName();
-      // }).reduce(artists[0].getName(), (acc, artistName) -> {
-      //   return acc + ", " + artistName;
-      // });
+      return SpotifyObject.artist(artists[0].getId(), artists[0].getName());
     });
   }
-
 }

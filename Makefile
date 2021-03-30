@@ -1,10 +1,13 @@
 default: run
 
-.PHONY: run
+.PHONY: compile run set-env run-db-in-container
+
+compile:
+	mvn compile
 
 run:
 	export $$(cat .env | xargs); \
-	mvn exec:java --quiet
+	mvn exec:java --quiet -Dexec.args="--clean-run"
 
 set-env:
 	export $$(cat .env | xargs);

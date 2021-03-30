@@ -1,60 +1,67 @@
 package ch.fdlo.hoerbuchspion.crawler.types;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import com.wrapper.spotify.model_objects.specification.ArtistSimplified;
 
 @Entity
 @Table(name = "ARTIST")
 public class Artist {
-  static Map<String, Artist> instances = new HashMap<>();
+  // Multiple threads might access this instance pool simultaneously
+  static Map<String, Artist> instances = Collections.synchronizedMap(new HashMap<>());
 
   @Id
   private String id;
   private String name;
   @Embedded
-  private ArtistDetails artistDetails;
+  @AttributeOverrides({
+          @AttributeOverride(name = "large", column = @Column(name = "artistImageLarge")),
+          @AttributeOverride(name = "medium", column = @Column(name = "artistImageMedium")),
+          @AttributeOverride(name = "small", column = @Column(name = "artistImageSmall"))
+  })
+  private ImageURLs artistImageURLs;
+  private int popularity;
 
   // Required by JPA
   private Artist() {
   }
 
-  private Artist(String id, String name) {
+  private Artist(String id) {
     this.id = id;
-    this.name = name;
   }
 
-  public static Artist getArtist(String id, String name) {
+  public static Artist getArtist(String id) {
     Artist instance = instances.get(id);
 
     if (instance == null) {
-      instance = new Artist(id, name);
+      instance = new Artist(id);
       instances.put(id, instance);
     }
 
     return instance;
   }
 
-  public static Artist getArtist(ArtistSimplified artist) {
-    return getArtist(artist.getId(), artist.getName());
+  public static Collection<Artist> getAllArtists() {
+    return Collections.unmodifiableCollection(instances.values());
   }
 
   public String getId() {
     return id;
   }
 
-  public String getName() {
-    return name;
+
+  public void setArtistImage(ImageURLs artistImageURLs) {
+    this.artistImageURLs = artistImageURLs;
   }
 
-  public void setArtistDetails(ArtistDetails artistDetails) {
-    this.artistDetails = artistDetails;
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setPopularity(int popularity) {
+    this.popularity = popularity;
   }
 
   @Override

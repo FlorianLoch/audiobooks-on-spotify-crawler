@@ -16,4 +16,10 @@ public class CrawlStatsKVDAO {
   public void upsert(Set<CrawlStatsKV> crawlStats) {
     DBHelper.mergeIterable(crawlStats, em);
   }
+
+  public void truncateTable() {
+    this.em.getTransaction().begin();
+    this.em.createNativeQuery("DELETE FROM CRAWL_STATS_KV").executeUpdate();
+    this.em.getTransaction().commit();
+  }
 }

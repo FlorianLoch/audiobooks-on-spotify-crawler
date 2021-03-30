@@ -17,11 +17,18 @@ public class AlbumDAO {
     DBHelper.mergeIterable(albums, em);
   }
 
-  public boolean recordExists(Album album) {
+  public boolean recordExists(String albumID) {
     var query = this.em.createQuery("SELECT COUNT(1) FROM Album a WHERE a.id = :id", Long.class);
-    query.setParameter("id", album.getId());
+    query.setParameter("id", albumID);
 
     return query.getSingleResult() == 1;
+  }
+
+  public void truncateTables() {
+    this.em.getTransaction().begin();
+    this.em.createNativeQuery("DELETE FROM ALBUM").executeUpdate();
+    this.em.createNativeQuery("DELETE FROM ARTIST").executeUpdate();
+    this.em.getTransaction().commit();
   }
 
   public Album findById(String id) {

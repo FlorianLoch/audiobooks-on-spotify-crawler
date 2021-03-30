@@ -11,6 +11,8 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 
+import static java.lang.Thread.currentThread;
+
 class CountingSpotifyHttpManager extends AbstractDecoratingHttpManager {
     private static AtomicInteger requestCounter = new AtomicInteger();
 
@@ -23,7 +25,7 @@ class CountingSpotifyHttpManager extends AbstractDecoratingHttpManager {
             throws IOException, SpotifyWebApiException, ParseException {
         requestCounter.incrementAndGet();
 
-        System.out.println(verb + ": " + uri);
+        System.out.println("[" + currentThread().getId() + "] " + verb + ": " + uri);
 
         return wrappedVerbHandler.apply(uri, headers, body);
     }
