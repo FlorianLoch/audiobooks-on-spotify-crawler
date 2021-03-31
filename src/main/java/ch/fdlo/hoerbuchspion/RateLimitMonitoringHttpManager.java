@@ -11,6 +11,8 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 
+import static java.lang.Thread.currentThread;
+
 public class RateLimitMonitoringHttpManager extends AbstractDecoratingHttpManager {
   public static int DEFAULT_RETRY_AFTER = 2; // given in seconds
 
@@ -24,11 +26,11 @@ public class RateLimitMonitoringHttpManager extends AbstractDecoratingHttpManage
     try {
       return wrappedVerbHandler.apply(uri, headers, body);
     } catch (TooManyRequestsException e) {
-      StringBuilder sb = new StringBuilder("Triggered the API rate limit: ");
+      StringBuilder sb = new StringBuilder("[" + currentThread().getId() + "] Triggered the API rate limit: ");
 
       int retryAfter = e.getRetryAfter();
       if (retryAfter > 0) {
-        sb.append("Going to wait for ").append(e.getRetryAfter()).append(" seconds.");
+        sb.append("Going to wait for ").append(retryAfter).append(" seconds.");
       } else {
         retryAfter = DEFAULT_RETRY_AFTER;
         sb.append("No 'retry after' value given... Going to wait ").append(DEFAULT_RETRY_AFTER).append(" seconds.");

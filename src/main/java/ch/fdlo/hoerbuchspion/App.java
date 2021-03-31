@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
@@ -21,6 +22,8 @@ import ch.fdlo.hoerbuchspion.crawler.languageDetector.OptimaizeLanguageDetector;
 import ch.fdlo.hoerbuchspion.crawler.languageDetector.WordlistLanguageDetector;
 import ch.fdlo.hoerbuchspion.crawler.types.*;
 import ch.fdlo.hoerbuchspion.crawler.types.CrawlStatsKV.KVKey;
+
+import static java.lang.Thread.currentThread;
 
 public class App {
     public static final String ENV_CLIENT_ID = "HOERBUCHSPION_SPOTIFY_CLIENTID";
@@ -40,9 +43,7 @@ public class App {
             System.exit(1);
         }
 
-        System.out.println("Utilizing " + ForkJoinPool.getCommonPoolParallelism() + " threads.");
-
-        Instant start = Instant.now();
+        System.out.println("Utilizing " + (ForkJoinPool.getCommonPoolParallelism() + 1) + " threads.");
 
         var entityManager = DBHelper.getEntityManagerInstance(verboseLogging);
         var albumDAO = new AlbumDAO(entityManager);
@@ -50,13 +51,15 @@ public class App {
 
         System.out.println("Connected to DB.");
 
+        Instant start = Instant.now();
+
         if (args.length == 1 && args[0].equals("--clean-run")) {
             albumDAO.truncateTables();
             crawlStatsKVDAO.truncateTable();
             System.out.println("Truncated tables.");
         }
 
-        AuthorizedSpotifyAPIFactory apiFactory = new AuthorizedSpotifyAPIFactory(clientId, clientSecret);
+        AuthorizedSpotifyAPI apiFactory = new AuthorizedSpotifyAPI(clientId, clientSecret);
 
         try {
             var optimaizeLanguageDetector = new OptimaizeLanguageDetector();
@@ -94,13 +97,13 @@ public class App {
             stats.add(new CrawlStatsKV(KVKey.ALBUM_DETAILS_FETCHED_COUNT, fullAlbums.size()));
             stats.add(new CrawlStatsKV(KVKey.ARTIST_DETAILS_FETCHED_COUNT, Artist.getAllArtists().size()));
             stats.add(new CrawlStatsKV(KVKey.DURATION_LAST_RUN_MS, timeElapsed));
-            stats.add(new CrawlStatsKV(KVKey.TOTAL_API_REQUESTS_COUNT, CountingSpotifyHttpManager.getCount()));
+            stats.add(new CrawlStatsKV(KVKey.TOTAL_API_REQUESTS_COUNT, RequestCountingHttpManager.getCount()));
             stats.add(new CrawlStatsKV(KVKey.LAST_RUN_PERFOMED_AT, Instant.now().toEpochMilli()));
 
             crawlStatsKVDAO.upsert(stats);
 
             var cachedAlbumsCount = simpleAlbums.size() - fullAlbums.size();
-            System.out.println("Total amount of requests performed: " + CountingSpotifyHttpManager.getCount());
+            System.out.println("Total amount of requests performed: " + RequestCountingHttpManager.getCount());
             System.out.println(cachedAlbumsCount + " albums were in the DB already. " + fullAlbums.size()
                     + " had to be looked up.");
             System.out.println(Artist.getAllArtists().size()

@@ -2,6 +2,7 @@ package ch.fdlo.hoerbuchspion;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.wrapper.spotify.IHttpManager;
@@ -10,13 +11,14 @@ import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.message.BasicHeader;
 
 import static java.lang.Thread.currentThread;
 
-class CountingSpotifyHttpManager extends AbstractDecoratingHttpManager {
-    private static AtomicInteger requestCounter = new AtomicInteger();
+class RequestCountingHttpManager extends AbstractDecoratingHttpManager {
+    private static final AtomicInteger requestCounter = new AtomicInteger();
 
-    public CountingSpotifyHttpManager(IHttpManager httpManager) {
+    public RequestCountingHttpManager(IHttpManager httpManager) {
         super(httpManager);
     }
 

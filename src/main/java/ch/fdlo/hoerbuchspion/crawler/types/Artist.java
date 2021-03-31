@@ -10,7 +10,7 @@ import com.wrapper.spotify.model_objects.specification.ArtistSimplified;
 @Table(name = "ARTIST")
 public class Artist {
   // Multiple threads might access this instance pool simultaneously
-  static Map<String, Artist> instances = Collections.synchronizedMap(new HashMap<>());
+  private static Map<String, Artist> instances = new HashMap<>();
 
   @Id
   private String id;
@@ -32,18 +32,11 @@ public class Artist {
     this.id = id;
   }
 
-  public static Artist getArtist(String id) {
-    Artist instance = instances.get(id);
-
-    if (instance == null) {
-      instance = new Artist(id);
-      instances.put(id, instance);
-    }
-
-    return instance;
+  public static synchronized Artist getArtist(String id) {
+    return instances.computeIfAbsent(id, Artist::new);
   }
 
-  public static Collection<Artist> getAllArtists() {
+  public synchronized static Collection<Artist> getAllArtists() {
     return Collections.unmodifiableCollection(instances.values());
   }
 

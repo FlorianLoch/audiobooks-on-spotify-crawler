@@ -1,8 +1,6 @@
 package ch.fdlo.hoerbuchspion.crawler;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,9 +11,7 @@ import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 
 import org.apache.hc.core5.http.ParseException;
 
-import ch.fdlo.hoerbuchspion.AuthorizedSpotifyAPIFactory;
-import ch.fdlo.hoerbuchspion.crawler.types.Album;
-import ch.fdlo.hoerbuchspion.crawler.types.Artist;
+import ch.fdlo.hoerbuchspion.AuthorizedSpotifyAPI;
 
 public class Crawler {
   private SpotifyApi api;
@@ -25,8 +21,8 @@ public class Crawler {
   private Set<SpotifyObject> artists = Collections.synchronizedSet(new HashSet<>());
   private Set<SpotifyObject> albums = Collections.synchronizedSet(new HashSet<>());
 
-  public Crawler(AuthorizedSpotifyAPIFactory apiFactory) throws ParseException, SpotifyWebApiException, IOException {
-    this.api = apiFactory.createInstance();
+  public Crawler(AuthorizedSpotifyAPI apiFactory) throws ParseException, SpotifyWebApiException, IOException {
+    this.api = apiFactory.getInstance();
   }
 
   public void addArtist(String id, String name) {
