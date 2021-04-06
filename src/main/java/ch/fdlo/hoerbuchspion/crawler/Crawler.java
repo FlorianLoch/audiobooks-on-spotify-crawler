@@ -61,7 +61,12 @@ public class Crawler {
   }
 
   private void collectArtists() {
-    this.collect(this.playlists, this.artists, ArtistsFromPlaylistFetcher.class);
+    var fetcher = new ArtistsFromPlaylistFetcher(this.api);
+
+    this.playlists.parallelStream().forEach(item -> {
+      // TODO: Handle runtime exceptions
+      fetcher.fetch(item.getId()).forEach(this.artists::addAll);
+    });
   }
 
   private void collectAlbums() {

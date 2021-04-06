@@ -36,14 +36,13 @@ public class Artist {
     return instances.computeIfAbsent(id, Artist::new);
   }
 
-  public synchronized static Collection<Artist> getAllArtists() {
+  public static synchronized Collection<Artist> getAllArtists() {
     return Collections.unmodifiableCollection(instances.values());
   }
 
   public String getId() {
     return id;
   }
-
 
   public void setArtistImage(ImageURLs artistImageURLs) {
     this.artistImageURLs = artistImageURLs;

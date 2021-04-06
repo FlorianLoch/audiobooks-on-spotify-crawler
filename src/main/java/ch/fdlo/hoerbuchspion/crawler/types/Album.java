@@ -1,13 +1,12 @@
 package ch.fdlo.hoerbuchspion.crawler.types;
 
 import ch.fdlo.hoerbuchspion.crawler.languageDetector.Language;
-import com.wrapper.spotify.enums.AlbumGroup;
-import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
 import com.wrapper.spotify.model_objects.specification.Copyright;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.function.Function;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Entity
@@ -16,8 +15,8 @@ public class Album {
   @Id
   private String id;
   private String name;
-  @ManyToOne(cascade = CascadeType.MERGE)
-  private Artist artist;
+  @ManyToMany(cascade = CascadeType.MERGE)
+  private List<Artist> artists;
   private String releaseDate;
   @Embedded
   @AttributeOverrides({
@@ -51,9 +50,11 @@ public class Album {
     this.name = album.getName();
 
     assert (album.getArtists().length > 0);
-    // TODO: Handle cases of multiple artists
-    var primaryArtist = album.getArtists()[0];
-    this.artist = Artist.getArtist(primaryArtist.getId());
+
+    this.artists = new ArrayList<>(album.getArtists().length);
+    for (var artist : album.getArtists()) {
+      this.artists.add(Artist.getArtist(artist.getId()));
+    }
 
     this.releaseDate = album.getReleaseDate();
 
@@ -94,8 +95,8 @@ public class Album {
     return name;
   }
 
-  public Artist getArtist() {
-    return artist;
+  public List<Artist> getArtists() {
+    return artists;
   }
 
   public String getReleaseDate() {

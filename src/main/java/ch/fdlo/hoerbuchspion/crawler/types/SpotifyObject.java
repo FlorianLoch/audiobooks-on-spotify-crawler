@@ -43,6 +43,11 @@ public class SpotifyObject {
         return type;
     }
 
+    @Override
+    public String toString() {
+        return type + ": " + name + "(" + id + ")";
+    }
+
     enum SpotifyObjectType {
         ALBUM, ARTIST, CATEGORY, PLAYLIST, PROFILE;
     }

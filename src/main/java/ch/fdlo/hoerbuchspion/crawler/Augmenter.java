@@ -50,6 +50,7 @@ public class Augmenter {
   public void augmentArtist(Artist artist) {
       try {
           var spotifyArtist = this.api.getArtist(artist.getId()).build().execute();
+
           artist.setName(spotifyArtist.getName());
           artist.setArtistImage(ImageURLs.from(spotifyArtist.getImages()));
           artist.setPopularity(spotifyArtist.getPopularity());
