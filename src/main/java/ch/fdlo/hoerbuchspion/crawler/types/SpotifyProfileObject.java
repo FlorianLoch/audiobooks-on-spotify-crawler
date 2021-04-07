@@ -1,7 +1,15 @@
 package ch.fdlo.hoerbuchspion.crawler.types;
 
 public class SpotifyProfileObject extends SpotifyObject {
-    public SpotifyProfileObject(String id, String name) {
-        super(id, name, SpotifyObjectType.PROFILE);
+    public SpotifyProfileObject(String id) {
+        super(id);
+    }
+
+    // Required by Jackson
+    private SpotifyProfileObject() {}
+
+    @Override
+    public String toString() {
+        return "PROFILE:" + super.toString();
     }
 }

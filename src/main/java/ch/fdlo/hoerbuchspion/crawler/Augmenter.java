@@ -24,7 +24,7 @@ public class Augmenter {
     this.tracksFromAlbumFetcher = new TracksFromAlbumFetcher(this.api);
   }
 
-  public Album inflateAlbum(SpotifyObject simpleAlbum) {
+  public Album inflateAlbum(SpotifyAlbumObject simpleAlbum) {
     try {
         // TODO: Improve error handling
         var spotifyAlbum = this.api.getAlbum(simpleAlbum.getId()).build().execute();

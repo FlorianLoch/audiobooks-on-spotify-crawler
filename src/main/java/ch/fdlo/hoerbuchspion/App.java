@@ -1,6 +1,11 @@
 package ch.fdlo.hoerbuchspion;
 
+import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
@@ -8,6 +13,7 @@ import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
+import ch.fdlo.hoerbuchspion.crawler.config.Config;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 
 import org.apache.hc.core5.http.ParseException;
@@ -56,7 +62,7 @@ public class App {
         if (args.length == 1 && args[0].equals("--clean-run")) {
             albumDAO.truncateTables();
             crawlStatsKVDAO.truncateTable();
-            System.out.println("Truncated tables.");
+            System.out.println("Successfully truncated tables.");
         }
 
         AuthorizedSpotifyAPI apiFactory = new AuthorizedSpotifyAPI(clientId, clientSecret);
@@ -74,11 +80,18 @@ public class App {
             // crawler.addCategory("audiobooks");
             // crawler.addProfile("argonhörbücher");
             // crawler.addArtist("2YlvvdXUqRjiXmeL2GRuZ9", "Sherlock Holmes");
-            crawler.addArtist(new SpotifyArtistObject("0I5CMdNszqP3qJTmhGxlsA", "Ken Follett"));
+//            crawler.addArtist(new SpotifyArtistObject("0I5CMdNszqP3qJTmhGxlsA", "Ken Follett"));
+
+            var configFilePath = Paths.get(System.getProperty("user.dir"), "config.yaml");
+            var config = Config.LoadConfig(Files.newInputStream(configFilePath));
+            config.profiles.forEach(crawler::addProfile);
+            config.categories.forEach(crawler::addCategory);
+            config.playlists.forEach(crawler::addPlaylist);
+            config.artists.forEach(crawler::addArtist);
 
             var simpleAlbums = crawler.crawlAlbums();
             var fullAlbums = simpleAlbums.parallelStream().
-                    filter(simpleAlbum -> !albumDAO.recordExists(simpleAlbum.getId())).
+                    filter(simpleAlbum -> !albumDAO.recordExists(simpleAlbum)).
                     map(augmenter::inflateAlbum).
                     collect(Collectors.toList());
 

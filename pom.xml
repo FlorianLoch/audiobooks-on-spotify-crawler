@@ -8,7 +8,7 @@
   <artifactId>crawler</artifactId>
   <version>0.1</version>
 
-  <name>hoerbuchspion</name>
+  <name>hoerbuchspion-crawler</name>
   <description>Crawling Spotify to find audiobooks, preparing data for a web ui serving a better overview on what to listen to.</description>
   <url>https://github.com/FlorianLoch/audiobooks-on-spotify</url>
 
@@ -19,6 +19,11 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+      <version>2.12.2</version>
+    </dependency>
     <dependency>
       <groupId>com.optimaize.languagedetector</groupId>
       <artifactId>language-detector</artifactId>

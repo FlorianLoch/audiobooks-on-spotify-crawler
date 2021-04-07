@@ -41,7 +41,7 @@ public class Crawler {
     this.profiles.add(profile);
   }
 
-  public Set<SpotifyObject> crawlAlbums() throws ParseException, SpotifyWebApiException, IOException {
+  public Set<SpotifyAlbumObject> crawlAlbums() throws ParseException, SpotifyWebApiException, IOException {
     this.collectPlaylists();
     System.out.println("Found " + this.playlists.size() + " playlists.");
 

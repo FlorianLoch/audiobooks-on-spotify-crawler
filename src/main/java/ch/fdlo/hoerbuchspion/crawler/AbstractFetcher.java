@@ -22,14 +22,10 @@ public abstract class AbstractFetcher<T> {
 
     // Helper function to be called from the various fetch implementations.
     protected <R> Iterable<T> executeRequest(IPagingRequestBuilder<R, ? extends IRequest.Builder<Paging<R>, ?>> builder, Function<R, T> mapFn) {
-        return new Iterable<T>() {
-            @NotNull
-            @Override
-            public Iterator<T> iterator() {
-                var pagingIter = new PaginationIterator<>(builder);
+        return () -> {
+            var pagingIter = new PaginationIterator<>(builder);
 
-                return new MappingIterator<>(pagingIter, mapFn);
-            }
+            return new MappingIterator<>(pagingIter, mapFn);
         };
     }
 }
