@@ -74,7 +74,7 @@ public class App {
             // crawler.addCategory("audiobooks");
             // crawler.addProfile("argonhörbücher");
             // crawler.addArtist("2YlvvdXUqRjiXmeL2GRuZ9", "Sherlock Holmes");
-            crawler.addArtist("0I5CMdNszqP3qJTmhGxlsA", "Ken Follett");
+            crawler.addArtist(new SpotifyArtistObject("0I5CMdNszqP3qJTmhGxlsA", "Ken Follett"));
 
             var simpleAlbums = crawler.crawlAlbums();
             var fullAlbums = simpleAlbums.parallelStream().

@@ -1,5 +1,6 @@
 package ch.fdlo.hoerbuchspion.crawler;
 
+import ch.fdlo.hoerbuchspion.crawler.types.SpotifyArtistObject;
 import ch.fdlo.hoerbuchspion.crawler.types.SpotifyObject;
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.model_objects.IPlaylistItem;
@@ -10,13 +11,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ArtistsFromPlaylistFetcher extends AbstractFetcher<List<SpotifyObject>> {
+public class ArtistsFromPlaylistFetcher extends AbstractFetcher<List<SpotifyArtistObject>> {
   public ArtistsFromPlaylistFetcher(SpotifyApi authorizedApi) {
     super(authorizedApi);
   }
 
   @Override
-  public Iterable<List<SpotifyObject>> fetch(String id) {
+  public Iterable<List<SpotifyArtistObject>> fetch(String id) {
     var builder = this.spotifyApi.getPlaylistsItems(id);
 
     return this.executeRequest(builder, playlistTrack -> {
@@ -32,7 +33,7 @@ public class ArtistsFromPlaylistFetcher extends AbstractFetcher<List<SpotifyObje
 
       assert artists.length > 0;
 
-      return Arrays.stream(artists).map(artist -> SpotifyObject.artist(artist.getId(), artist.getName())).collect(Collectors.toList());
+      return Arrays.stream(artists).map(artist -> new SpotifyArtistObject(artist.getId(), artist.getName())).collect(Collectors.toList());
     });
   }
 }
