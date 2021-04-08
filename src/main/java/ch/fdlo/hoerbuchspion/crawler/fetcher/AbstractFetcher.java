@@ -1,6 +1,5 @@
-package ch.fdlo.hoerbuchspion.crawler;
+package ch.fdlo.hoerbuchspion.crawler.fetcher;
 
-import java.util.Iterator;
 import java.util.function.Function;
 
 import com.wrapper.spotify.SpotifyApi;
@@ -9,7 +8,6 @@ import com.wrapper.spotify.requests.IRequest;
 import com.wrapper.spotify.requests.data.IPagingRequestBuilder;
 
 import ch.fdlo.hoerbuchspion.crawler.util.*;
-import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractFetcher<T> {
     protected final SpotifyApi spotifyApi;

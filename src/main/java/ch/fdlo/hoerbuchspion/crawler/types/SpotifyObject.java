@@ -8,7 +8,8 @@ public abstract class SpotifyObject {
     }
 
     // Required by Jackson
-    protected SpotifyObject() {}
+    protected SpotifyObject() {
+    }
 
     public String getId() {
         return id;

@@ -6,7 +6,8 @@ public class SpotifyProfileObject extends SpotifyObject {
     }
 
     // Required by Jackson
-    private SpotifyProfileObject() {}
+    private SpotifyProfileObject() {
+    }
 
     @Override
     public String toString() {

@@ -9,7 +9,8 @@ public class NamedSpotifyObject extends SpotifyObject {
     }
 
     // Required by Jackson
-    protected NamedSpotifyObject() {}
+    protected NamedSpotifyObject() {
+    }
 
     public String getName() {
         return name;

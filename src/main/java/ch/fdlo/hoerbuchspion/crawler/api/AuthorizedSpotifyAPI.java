@@ -1,14 +1,7 @@
-package ch.fdlo.hoerbuchspion;
-
-import java.io.IOException;
+package ch.fdlo.hoerbuchspion.crawler.api;
 
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.SpotifyHttpManager;
-import com.wrapper.spotify.exceptions.SpotifyWebApiException;
-import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
-import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
-
-import org.apache.hc.core5.http.ParseException;
 
 public class AuthorizedSpotifyAPI {
     private final SpotifyApi instance;

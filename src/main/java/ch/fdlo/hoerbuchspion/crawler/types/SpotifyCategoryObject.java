@@ -6,7 +6,8 @@ public class SpotifyCategoryObject extends SpotifyObject {
     }
 
     // Required by Jackson
-    private SpotifyCategoryObject() {}
+    private SpotifyCategoryObject() {
+    }
 
     @Override
     public String toString() {

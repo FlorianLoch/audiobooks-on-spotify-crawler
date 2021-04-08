@@ -11,8 +11,8 @@ import com.wrapper.spotify.requests.data.IPagingRequestBuilder;
 
 import org.apache.hc.core5.http.ParseException;
 
-  // TODO: add tests
-  public class PaginationIterator<T> implements Iterator<T> {
+// TODO: add tests
+public class PaginationIterator<T> implements Iterator<T> {
     final static int LIMIT = 50;
     final IPagingRequestBuilder<T, ? extends IRequest.Builder<Paging<T>, ?>> builder;
     T[] currentPageItems;
@@ -21,49 +21,49 @@ import org.apache.hc.core5.http.ParseException;
     int totalItems;
 
     public PaginationIterator(IPagingRequestBuilder<T, ? extends IRequest.Builder<Paging<T>, ?>> builder) {
-      this.builder = builder;
+        this.builder = builder;
 
-      builder.limit(LIMIT);
+        builder.limit(LIMIT);
     }
 
     @Override
     public boolean hasNext() {
-      if (this.currentPageItems == null || (this.curIndex == LIMIT && this.curIndex + this.curOffset < this.totalItems)) {
-        this.requestNextPage();
-      }
+        if (this.currentPageItems == null || (this.curIndex == LIMIT && this.curIndex + this.curOffset < this.totalItems)) {
+            this.requestNextPage();
+        }
 
-      return this.curIndex + this.curOffset < this.totalItems;
+        return this.curIndex + this.curOffset < this.totalItems;
     }
 
     private void requestNextPage() {
-      var req = this.builder.offset(this.curOffset + LIMIT).build();
+        var req = this.builder.offset(this.curOffset + LIMIT).build();
 
-      try {
-        var page = req.execute();
+        try {
+            var page = req.execute();
 
-        this.currentPageItems = page.getItems();
-        this.totalItems = page.getTotal();
-      } catch (ParseException | SpotifyWebApiException | IOException e) {
-        // TODO: rethrow Runtime Exception. Super important as otherwise a consumer might continue to call next().
-        // Required for correct program flow.
+            this.currentPageItems = page.getItems();
+            this.totalItems = page.getTotal();
+        } catch (ParseException | SpotifyWebApiException | IOException e) {
+            // TODO: rethrow Runtime Exception. Super important as otherwise a consumer might continue to call next().
+            // Required for correct program flow.
 
-        e.printStackTrace();
-      }
+            e.printStackTrace();
+        }
 
-      this.curOffset = this.curOffset + LIMIT;
-      this.curIndex = 0;
+        this.curOffset = this.curOffset + LIMIT;
+        this.curIndex = 0;
     }
 
     @Override
     public T next() {
-      if (!this.hasNext()) {
-        throw new NoSuchElementException();
-      }
+        if (!this.hasNext()) {
+            throw new NoSuchElementException();
+        }
 
-      var curItem = this.currentPageItems[this.curIndex];
+        var curItem = this.currentPageItems[this.curIndex];
 
-      this.curIndex++;
+        this.curIndex++;
 
-      return curItem;
+        return curItem;
     }
-  }
+}

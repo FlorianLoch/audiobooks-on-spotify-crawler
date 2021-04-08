@@ -1,18 +1,17 @@
-package ch.fdlo.hoerbuchspion;
+package ch.fdlo.hoerbuchspion.crawler;
 
-import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import ch.fdlo.hoerbuchspion.crawler.api.AuthorizedSpotifyAPI;
+import ch.fdlo.hoerbuchspion.crawler.api.RequestCountingHttpManager;
 import ch.fdlo.hoerbuchspion.crawler.config.Config;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 
@@ -29,8 +28,6 @@ import ch.fdlo.hoerbuchspion.crawler.languageDetector.WordlistLanguageDetector;
 import ch.fdlo.hoerbuchspion.crawler.types.*;
 import ch.fdlo.hoerbuchspion.crawler.types.CrawlStatsKV.KVKey;
 
-import static java.lang.Thread.currentThread;
-
 public class App {
     public static final String ENV_CLIENT_ID = "HOERBUCHSPION_SPOTIFY_CLIENTID";
     public static final String ENV_CLIENT_SECRET = "HOERBUCHSPION_SPOTIFY_CLIENTSECRET";
@@ -40,8 +37,8 @@ public class App {
         final String clientId = System.getenv(ENV_CLIENT_ID);
         final String clientSecret = System.getenv(ENV_CLIENT_SECRET);
         final boolean verboseLogging = Boolean.parseBoolean(System.getenv(ENV_VERBOSE_LOGGING)); // accepts only "true"
-                                                                                                 // as true, case does
-                                                                                                 // not matter
+        // as true, case does
+        // not matter
 
         if (clientId == null || clientId.isEmpty() || clientSecret == null || clientSecret.isEmpty()) {
             System.out.println("Credentials for Spotify API not found. Please make sure '" + ENV_CLIENT_ID + "' and '"
@@ -89,10 +86,15 @@ public class App {
             config.playlists.forEach(crawler::addPlaylist);
             config.artists.forEach(crawler::addArtist);
 
+            var albumsProcessedCounter = new AtomicInteger();
+
             var simpleAlbums = crawler.crawlAlbums();
             var fullAlbums = simpleAlbums.parallelStream().
                     filter(simpleAlbum -> !albumDAO.recordExists(simpleAlbum)).
-                    map(augmenter::inflateAlbum).
+                    map(album -> {
+                        System.out.println(albumsProcessedCounter.incrementAndGet() + "/" + simpleAlbums.size());
+                        return augmenter.inflateAlbum(album);
+                    }).
                     collect(Collectors.toList());
 
             Artist.getAllArtists().parallelStream().forEach(augmenter::augmentArtist);

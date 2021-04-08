@@ -1,4 +1,4 @@
-package ch.fdlo.hoerbuchspion;
+package ch.fdlo.hoerbuchspion.crawler.api;
 
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;

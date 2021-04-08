@@ -1,8 +1,7 @@
-package ch.fdlo.hoerbuchspion;
+package ch.fdlo.hoerbuchspion.crawler.api;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.wrapper.spotify.IHttpManager;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;

@@ -16,7 +16,8 @@ public class Config {
     public List<SpotifyPlaylistObject> playlists = Collections.emptyList();
     public List<SpotifyArtistObject> artists = Collections.emptyList();
 
-    public Config() {}
+    public Config() {
+    }
 
     public static Config LoadConfig(InputStream in) throws IOException {
         var mapper = new ObjectMapper(new YAMLFactory());
