@@ -1,5 +1,6 @@
 package ch.fdlo.hoerbuchspion.crawler.fetcher;
 
+import ch.fdlo.hoerbuchspion.crawler.types.SpotifyObject;
 import com.neovisionaries.i18n.CountryCode;
 import com.wrapper.spotify.SpotifyApi;
 
@@ -11,8 +12,8 @@ public class TracksFromAlbumFetcher extends AbstractFetcher<Track> {
     }
 
     @Override
-    public Iterable<Track> fetch(String id) {
-        var builder = this.spotifyApi.getAlbumsTracks(id);
+    public Iterable<Track> fetch(SpotifyObject target) {
+        var builder = this.spotifyApi.getAlbumsTracks(target.getId());
 
         builder.market(CountryCode.DE);
 

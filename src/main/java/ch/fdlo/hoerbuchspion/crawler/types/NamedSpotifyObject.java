@@ -3,8 +3,8 @@ package ch.fdlo.hoerbuchspion.crawler.types;
 public class NamedSpotifyObject extends SpotifyObject {
     private String name;
 
-    protected NamedSpotifyObject(String id, String name) {
-        super(id);
+    protected NamedSpotifyObject(String id, String name, SpotifyObject foundVia) {
+        super(id, foundVia);
         this.name = name;
     }
 
@@ -18,6 +18,6 @@ public class NamedSpotifyObject extends SpotifyObject {
 
     @Override
     public String toString() {
-        return super.toString() + "(" + getName() + ")";
+        return getName() + ", " + super.toString();
     }
 }

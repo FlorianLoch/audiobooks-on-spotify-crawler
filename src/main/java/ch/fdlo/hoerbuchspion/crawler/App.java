@@ -1,6 +1,9 @@
 package ch.fdlo.hoerbuchspion.crawler;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -36,9 +39,7 @@ public class App {
     public static void main(String[] args) {
         final String clientId = System.getenv(ENV_CLIENT_ID);
         final String clientSecret = System.getenv(ENV_CLIENT_SECRET);
-        final boolean verboseLogging = Boolean.parseBoolean(System.getenv(ENV_VERBOSE_LOGGING)); // accepts only "true"
-        // as true, case does
-        // not matter
+        final boolean verboseLogging = Boolean.parseBoolean(System.getenv(ENV_VERBOSE_LOGGING)); // accepts only "true" as true, case does not matter
 
         if (clientId == null || clientId.isEmpty() || clientSecret == null || clientSecret.isEmpty()) {
             System.out.println("Credentials for Spotify API not found. Please make sure '" + ENV_CLIENT_ID + "' and '"
@@ -74,21 +75,31 @@ public class App {
             var crawler = new Crawler(apiFactory);
             var augmenter = new Augmenter(apiFactory, combinedLanguageDetector);
 
-            // crawler.addCategory("audiobooks");
-            // crawler.addProfile("argonhörbücher");
-            // crawler.addArtist("2YlvvdXUqRjiXmeL2GRuZ9", "Sherlock Holmes");
-//            crawler.addArtist(new SpotifyArtistObject("0I5CMdNszqP3qJTmhGxlsA", "Ken Follett"));
-
             var configFilePath = Paths.get(System.getProperty("user.dir"), "config.yaml");
             var config = Config.LoadConfig(Files.newInputStream(configFilePath));
             config.profiles.forEach(crawler::addProfile);
             config.categories.forEach(crawler::addCategory);
+
+            var simplePlaylists = crawler.collectPlaylists();
+            System.out.println("Found " + simplePlaylists.size() + " playlists.");
             config.playlists.forEach(crawler::addPlaylist);
+
+            var simpleArtists = crawler.collectArtists();
+            System.out.println("Found " + simplePlaylists.size() + " artits.");
             config.artists.forEach(crawler::addArtist);
 
-            var albumsProcessedCounter = new AtomicInteger();
+            var simpleAlbums = crawler.collectAlbums();
+            System.out.println("Found " + simplePlaylists.size() + " albums.");
 
-            var simpleAlbums = crawler.crawlAlbums();
+            var albumsTracePath = Paths.get(System.getProperty("user.dir"), "albums.debug.log");
+            try (var writer = new OutputStreamWriter(Files.newOutputStream(albumsTracePath))) {
+                for (var album : simpleAlbums) {
+                    writer.append(album.toString());
+                    writer.write('\n');
+                }
+            }
+
+            var albumsProcessedCounter = new AtomicInteger();
             var fullAlbums = simpleAlbums.parallelStream().
                     filter(simpleAlbum -> !albumDAO.recordExists(simpleAlbum)).
                     map(album -> {

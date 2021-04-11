@@ -1,5 +1,6 @@
 package ch.fdlo.hoerbuchspion.crawler.fetcher;
 
+import ch.fdlo.hoerbuchspion.crawler.types.SpotifyObject;
 import ch.fdlo.hoerbuchspion.crawler.types.SpotifyPlaylistObject;
 import com.wrapper.spotify.SpotifyApi;
 
@@ -9,9 +10,9 @@ public class PlaylistsFromProfileFetcher extends AbstractFetcher<SpotifyPlaylist
     }
 
     @Override
-    public Iterable<SpotifyPlaylistObject> fetch(String id) {
-        var builder = this.spotifyApi.getListOfUsersPlaylists(id);
+    public Iterable<SpotifyPlaylistObject> fetch(SpotifyObject target) {
+        var builder = this.spotifyApi.getListOfUsersPlaylists(target.getId());
 
-        return this.executeRequest(builder, playlist -> new SpotifyPlaylistObject(playlist.getId(), playlist.getName()));
+        return this.executeRequest(builder, playlist -> new SpotifyPlaylistObject(playlist.getId(), playlist.getName(), target));
     }
 }

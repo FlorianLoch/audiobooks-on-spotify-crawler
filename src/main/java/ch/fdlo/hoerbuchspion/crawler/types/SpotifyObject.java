@@ -1,10 +1,15 @@
 package ch.fdlo.hoerbuchspion.crawler.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public abstract class SpotifyObject {
     private String id;
+    @JsonIgnore
+    private SpotifyObject foundVia;
 
-    protected SpotifyObject(String id) {
+    protected SpotifyObject(String id, SpotifyObject foundVia) {
         this.id = id;
+        this.foundVia = foundVia;
     }
 
     // Required by Jackson
@@ -17,6 +22,10 @@ public abstract class SpotifyObject {
 
     @Override
     public String toString() {
-        return getId();
+        if (foundVia == null) {
+            return getId() + " <- ENTRYPOINT";
+        } else {
+            return getId() + " <- " + foundVia.toString();
+        }
     }
 }

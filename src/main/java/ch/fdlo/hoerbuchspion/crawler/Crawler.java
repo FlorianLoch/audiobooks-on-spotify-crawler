@@ -27,7 +27,9 @@ public class Crawler {
     }
 
     public void addArtist(SpotifyArtistObject artist) {
-        this.artists.add(artist);
+        if (!this.artists.add(artist)) {
+            System.out.println("Artist already considered.");
+        }
     }
 
     public void addCategory(SpotifyCategoryObject category) {
@@ -35,44 +37,41 @@ public class Crawler {
     }
 
     public void addPlaylist(SpotifyPlaylistObject playlist) {
-        this.playlists.add(playlist);
+        if (!this.playlists.add(playlist)) {
+            System.out.println("Playlist already considered.");
+        }
     }
 
     public void addProfile(SpotifyProfileObject profile) {
         this.profiles.add(profile);
     }
 
-    public Set<SpotifyAlbumObject> crawlAlbums() throws ParseException, SpotifyWebApiException, IOException {
-        this.collectPlaylists();
-        // TODO: Move this to App.java
-        System.out.println("Found " + this.playlists.size() + " playlists.");
-
-        this.collectArtists();
-        System.out.println("Found " + this.artists.size() + " artists.");
-
-        this.collectAlbums();
-        System.out.println("Found " + this.albums.size() + " albums.");
-
-        return Collections.unmodifiableSet(this.albums);
-    }
-
-    private void collectPlaylists() {
+    public Set<SpotifyPlaylistObject> collectPlaylists() {
         this.collect(this.categories, this.playlists, PlaylistsFromCategoryFetcher.class);
 
         this.collect(this.profiles, this.playlists, PlaylistsFromProfileFetcher.class);
+
+        return Collections.unmodifiableSet(this.playlists);
     }
 
-    private void collectArtists() {
+    public Set<SpotifyPlaylistObject> collectArtists() {
         var fetcher = new ArtistsFromPlaylistFetcher(this.api);
 
         this.playlists.parallelStream().forEach(item -> {
-            // TODO: Handle runtime exceptions
-            fetcher.fetch(item.getId()).forEach(this.artists::addAll);
+            try {
+                fetcher.fetch(item).forEach(this.artists::addAll);
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+            }
         });
+
+        return Collections.unmodifiableSet(this.playlists);
     }
 
-    private void collectAlbums() {
+    public Set<SpotifyAlbumObject> collectAlbums() {
         this.collect(this.artists, this.albums, AlbumsFromArtistFetcher.class);
+
+        return Collections.unmodifiableSet(this.albums);
     }
 
     private <R extends SpotifyObject, T extends AbstractFetcher<R>> void collect(Set<? extends SpotifyObject> source, Set<R> target, Class<T> fetcherClass) {
@@ -86,8 +85,11 @@ public class Crawler {
         }
 
         source.parallelStream().forEach(item -> {
-            // TODO: Handle runtime exceptions
-            fetcher.fetch(item.getId()).forEach(target::add);
+            try {
+                fetcher.fetch(item).forEach(target::add);
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+            }
         });
     }
 }

@@ -1,8 +1,8 @@
 package ch.fdlo.hoerbuchspion.crawler.types;
 
 public class SpotifyPlaylistObject extends NamedSpotifyObject {
-    public SpotifyPlaylistObject(String id, String name) {
-        super(id, name);
+    public SpotifyPlaylistObject(String id, String name, SpotifyObject foundVia) {
+        super(id, name, foundVia);
     }
 
     // Required by Jackson

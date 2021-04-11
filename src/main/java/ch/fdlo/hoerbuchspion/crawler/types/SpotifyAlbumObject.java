@@ -1,8 +1,8 @@
 package ch.fdlo.hoerbuchspion.crawler.types;
 
 public class SpotifyAlbumObject extends NamedSpotifyObject {
-    public SpotifyAlbumObject(String id, String name) {
-        super(id, name);
+    public SpotifyAlbumObject(String id, String name, SpotifyObject foundVia) {
+        super(id, name, foundVia);
     }
 
     @Override

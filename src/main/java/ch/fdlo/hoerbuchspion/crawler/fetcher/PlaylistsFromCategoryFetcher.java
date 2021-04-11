@@ -1,5 +1,6 @@
 package ch.fdlo.hoerbuchspion.crawler.fetcher;
 
+import ch.fdlo.hoerbuchspion.crawler.types.SpotifyObject;
 import ch.fdlo.hoerbuchspion.crawler.types.SpotifyPlaylistObject;
 import com.neovisionaries.i18n.CountryCode;
 import com.wrapper.spotify.SpotifyApi;
@@ -10,11 +11,11 @@ public class PlaylistsFromCategoryFetcher extends AbstractFetcher<SpotifyPlaylis
     }
 
     @Override
-    public Iterable<SpotifyPlaylistObject> fetch(String id) {
-        var builder = this.spotifyApi.getCategorysPlaylists(id);
+    public Iterable<SpotifyPlaylistObject> fetch(SpotifyObject target) {
+        var builder = this.spotifyApi.getCategorysPlaylists(target.getId());
 
         builder.country(CountryCode.DE);
 
-        return this.executeRequest(builder, playlist -> new SpotifyPlaylistObject(playlist.getId(), playlist.getName()));
+        return this.executeRequest(builder, playlist -> new SpotifyPlaylistObject(playlist.getId(), playlist.getName(), target));
     }
 }

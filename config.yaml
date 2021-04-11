@@ -1,5 +1,9 @@
-#artists:
-#  - id: 0I5CMdNszqP3qJTmhGxlsA
-#    name: Ken Follett
+categories:
+  - audiobook
 profiles:
   - argonhörbücher
+artists:
+  - id: 2YlvvdXUqRjiXmeL2GRuZ9
+    name: Sherlock Holmes
+  - id: 0I5CMdNszqP3qJTmhGxlsA
+    name: Ken Follett

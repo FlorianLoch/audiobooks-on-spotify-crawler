@@ -32,7 +32,7 @@ public class Augmenter {
 
             var fullAlbum = new Album(spotifyAlbum, assumedLanguage);
 
-            tracksFromAlbumFetcher.fetch(simpleAlbum.getId()).forEach(fullAlbum::digestTrack);
+            tracksFromAlbumFetcher.fetch(simpleAlbum).forEach(fullAlbum::digestTrack);
 
             return fullAlbum;
         } catch (IOException e) {
