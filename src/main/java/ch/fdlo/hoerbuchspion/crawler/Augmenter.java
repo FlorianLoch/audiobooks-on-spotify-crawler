@@ -24,26 +24,22 @@ public class Augmenter {
     }
 
     public Album inflateAlbum(SpotifyAlbumObject simpleAlbum) {
+        Album fullAlbum = null;
+
         try {
-            // TODO: Improve error handling
             var spotifyAlbum = this.api.getAlbum(simpleAlbum.getId()).build().execute();
 
             var assumedLanguage = this.languageDetector.detectLanguage(simpleAlbum.getName());
 
-            var fullAlbum = new Album(spotifyAlbum, assumedLanguage);
+            fullAlbum = new Album(spotifyAlbum, assumedLanguage);
 
             tracksFromAlbumFetcher.fetch(simpleAlbum).forEach(fullAlbum::digestTrack);
-
-            return fullAlbum;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SpotifyWebApiException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
+        } catch (ParseException | SpotifyWebApiException | IOException e) {
+            // TODO: Improve error handling
             e.printStackTrace();
         }
 
-        return null;
+        return fullAlbum;
     }
 
     public void augmentArtist(Artist artist) {

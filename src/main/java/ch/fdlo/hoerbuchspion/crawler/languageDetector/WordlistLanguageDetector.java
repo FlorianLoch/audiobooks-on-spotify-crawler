@@ -40,7 +40,6 @@ public class WordlistLanguageDetector implements LanguageDetector {
                 System.out.println("Successfully loaded wordlist for '" + wordlistTuple.lang + "' from '" + wordlistTuple.file + "'.");
             } catch (IOException e) {
                 System.out.println("Failed to load wordlist for '" + wordlistTuple.lang + "' from '" + wordlistTuple.file + "': " + e.getMessage());
-                // TODO: maybe add how to install it?
             }
         }
     }
@@ -54,9 +53,6 @@ public class WordlistLanguageDetector implements LanguageDetector {
         for (var wordlistTuple : this.wordlists) {
             var hits = countHits(text, wordlistTuple.wordlist);
 
-            // TODO: in case several languages have the same hit count we should return
-            // Language.UNKNOWN
-
             if (hits > mostHits) {
                 mostHits = hits;
                 languageWithMostHits = wordlistTuple.lang;
@@ -69,7 +65,6 @@ public class WordlistLanguageDetector implements LanguageDetector {
     }
 
     private static String normalizeText(String str) {
-        // TODO: Add rough explanation on why this is done
         return str.strip().toLowerCase().replaceAll("\\(", "").replaceAll("\\)", "");
     }
 

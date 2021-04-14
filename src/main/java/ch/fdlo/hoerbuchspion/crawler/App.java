@@ -1,7 +1,5 @@
 package ch.fdlo.hoerbuchspion.crawler;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
@@ -20,8 +18,6 @@ import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 
 import org.apache.hc.core5.http.ParseException;
 
-import ch.fdlo.hoerbuchspion.crawler.Augmenter;
-import ch.fdlo.hoerbuchspion.crawler.Crawler;
 import ch.fdlo.hoerbuchspion.crawler.db.AlbumDAO;
 import ch.fdlo.hoerbuchspion.crawler.db.CrawlStatsKVDAO;
 import ch.fdlo.hoerbuchspion.crawler.db.DBHelper;
@@ -85,11 +81,11 @@ public class App {
             config.playlists.forEach(crawler::addPlaylist);
 
             var simpleArtists = crawler.collectArtists();
-            System.out.println("Found " + simplePlaylists.size() + " artits.");
+            System.out.println("Found " + simpleArtists.size() + " artists.");
             config.artists.forEach(crawler::addArtist);
 
             var simpleAlbums = crawler.collectAlbums();
-            System.out.println("Found " + simplePlaylists.size() + " albums.");
+            System.out.println("Found " + simpleAlbums.size() + " albums.");
 
             var albumsTracePath = Paths.get(System.getProperty("user.dir"), "albums.debug.log");
             try (var writer = new OutputStreamWriter(Files.newOutputStream(albumsTracePath))) {
@@ -114,17 +110,16 @@ public class App {
 
             long timeElapsed = Duration.between(start, Instant.now()).toMillis();
 
-            // TODO: replace dummy values
             var stats = new HashSet<CrawlStatsKV>();
-            stats.add(new CrawlStatsKV(KVKey.PLAYLISTS_CONSIDERED_COUNT, 0));
-            stats.add(new CrawlStatsKV(KVKey.PROFILES_CONSIDERED_COUNT, 0));
-            stats.add(new CrawlStatsKV(KVKey.ARTISTS_CONSIDERED_COUNT, 1));
+            stats.add(new CrawlStatsKV(KVKey.PLAYLISTS_CONSIDERED_COUNT, simplePlaylists.size()));
+            stats.add(new CrawlStatsKV(KVKey.PROFILES_CONSIDERED_COUNT, config.profiles.size()));
+            stats.add(new CrawlStatsKV(KVKey.ARTISTS_CONSIDERED_COUNT, simpleArtists.size()));
             stats.add(new CrawlStatsKV(KVKey.ALBUMS_FOUND_COUNT, simpleAlbums.size()));
             stats.add(new CrawlStatsKV(KVKey.ALBUM_DETAILS_FETCHED_COUNT, fullAlbums.size()));
             stats.add(new CrawlStatsKV(KVKey.ARTIST_DETAILS_FETCHED_COUNT, Artist.getAllArtists().size()));
             stats.add(new CrawlStatsKV(KVKey.DURATION_LAST_RUN_MS, timeElapsed));
             stats.add(new CrawlStatsKV(KVKey.TOTAL_API_REQUESTS_COUNT, RequestCountingHttpManager.getCount()));
-            stats.add(new CrawlStatsKV(KVKey.LAST_RUN_PERFOMED_AT, Instant.now().toEpochMilli()));
+            stats.add(new CrawlStatsKV(KVKey.LAST_RUN_FINISHED_AT, Instant.now().toEpochMilli()));
 
             crawlStatsKVDAO.upsert(stats);
 
