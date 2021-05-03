@@ -10,10 +10,11 @@ Playlists:
 
 
 User/Profiles:
+  - https://open.spotify.com/user/hoerbuecher?si=3794fe4c0ead47c0
 
 
 Weird stuff:
-  - Rumi: spotify:artist:61f6sF5hcAVsSEP0FCe6Wx, looks like multiple artists have been merged into one by Spotify
+  - Rumi: ```spotify:artist:61f6sF5hcAVsSEP0FCe6Wx, looks like multiple artists have been merged into one by Spotify```
 
 
 Playlists of the audiobooks category in DE:
